@@ -27,6 +27,7 @@ import { DailyPlannerView } from './components/views/DailyPlannerView';
 import { HistoryView } from './components/views/HistoryView';
 import { SettingsView } from './components/views/SettingsView';
 import { AndroidAppPlanView } from './components/views/AndroidAppPlanView';
+import { FamilyView } from './components/views/FamilyView';
 
 import {
   Menu,
@@ -65,6 +66,8 @@ const AppContent: React.FC = () => {
             onOpenQuickCreate={handleOpenQuickCreate}
           />
         );
+      case 'family':
+        return <FamilyView />;
       case 'tasks':
         return <TasksView onOpenQuickCreate={handleOpenQuickCreate} />;
       case 'events':
@@ -119,6 +122,7 @@ const AppContent: React.FC = () => {
         onOpenSummary={() => setIsSummaryOpen(true)}
         onNavigateToNotifications={() => setActiveTab('notifications')}
         onNavigateToSettings={() => setActiveTab('settings')}
+        onNavigateToFamily={() => setActiveTab('family')}
       />
 
       {/* Main Layout Area */}
@@ -148,7 +152,7 @@ const AppContent: React.FC = () => {
           </div>
 
           {/* Team Scope & Role Awareness Bar */}
-          {activeTab !== 'android_plan' && <TeamScopeBar />}
+          {activeTab !== 'android_plan' && activeTab !== 'family' && <TeamScopeBar />}
 
           {renderActiveView()}
         </main>

@@ -37,6 +37,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
     effectiveNow,
     currentUser,
     users,
+    familyMembers,
     canCreate,
   } = useApp();
 
@@ -56,7 +57,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   const [taskTags, setTaskTags] = useState('');
   const [taskRecurrence, setTaskRecurrence] = useState<'none' | 'daily' | 'weekly' | 'monthly'>('none');
   const [taskAssignedUserId, setTaskAssignedUserId] = useState(currentUser?.id || '');
-  const [taskIsShared, setTaskIsShared] = useState(false);
+  const [taskIsShared, setTaskIsShared] = useState(true);
 
   // Event form state
   const [eventTitle, setEventTitle] = useState('');
@@ -66,6 +67,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   const [eventTime, setEventTime] = useState('15:00');
   const [eventDuration, setEventDuration] = useState(60);
   const [eventLocation, setEventLocation] = useState('');
+  const [eventAssignedUserId, setEventAssignedUserId] = useState(currentUser?.id || '');
 
   // Deadline form state
   const [dlTitle, setDlTitle] = useState('');
@@ -75,6 +77,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   const [dlDate, setDlDate] = useState(todayStr);
   const [dlTime, setDlTime] = useState('17:00');
   const [dlNotes, setDlNotes] = useState('');
+  const [dlAssignedUserId, setDlAssignedUserId] = useState(currentUser?.id || '');
 
   // Routine form state
   const [rtnName, setRtnName] = useState('');
@@ -85,6 +88,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   const [rtnDuration, setRtnDuration] = useState(30);
   const [rtnRepeat, setRtnRepeat] = useState<RoutineRepeatType>('daily');
   const [rtnStepsText, setRtnStepsText] = useState('');
+  const [rtnAssignedUserId, setRtnAssignedUserId] = useState(currentUser?.id || '');
 
   // Follow-up form state
   const [fuContactName, setFuContactName] = useState('');
@@ -93,6 +97,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   const [fuNextDate, setFuNextDate] = useState(todayStr);
   const [fuNextTime, setFuNextTime] = useState('11:00');
   const [fuNotes, setFuNotes] = useState('');
+  const [fuAssignedUserId, setFuAssignedUserId] = useState(currentUser?.id || '');
 
   // Grocery form state
   const [grocName, setGrocName] = useState('');
@@ -101,6 +106,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   const [grocCat, setGrocCat] = useState<GroceryCategory>('Vegetables');
   const [grocStore, setGrocStore] = useState('');
   const [grocPrice, setGrocPrice] = useState<number | undefined>(undefined);
+  const [grocAssignedUserId, setGrocAssignedUserId] = useState(currentUser?.id || '');
 
   // Contact form state
   const [cntName, setCntName] = useState('');
@@ -149,6 +155,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
       time: eventTime,
       durationMinutes: Number(eventDuration) || 60,
       location: eventLocation.trim() || undefined,
+      assignedUserId: eventAssignedUserId || currentUser?.id,
       attendees: [],
       reminders: ['1d_before', '2h_before', '30m_before', '10m_before'],
     });
@@ -166,6 +173,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
       priority: dlPriority,
       deadlineDate: dlDate,
       deadlineTime: dlTime,
+      assignedUserId: dlAssignedUserId || currentUser?.id,
       notes: dlNotes.trim(),
       reminderTriggers: ['7d', '3d', '1d', '12h', '2h', '30m', 'at_deadline', 'after_deadline'],
       status: 'active',
@@ -191,6 +199,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
       time: rtnTime,
       durationMinutes: Number(rtnDuration) || 30,
       repeatType: rtnRepeat,
+      assignedUserId: rtnAssignedUserId || currentUser?.id,
       active: true,
       reminderRules: ['15m_before', 'at_time'],
       completionRequirement: steps.length > 0 ? 'all_steps' : 'checkbox',
@@ -214,6 +223,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
       lastContactDate: fuLastContact,
       nextFollowUpDate: fuNextDate,
       nextFollowUpTime: fuNextTime,
+      assignedUserId: fuAssignedUserId || currentUser?.id,
       status: 'pending',
       notes: fuNotes.trim(),
     });
@@ -231,6 +241,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
       category: grocCat,
       store: grocStore.trim() || undefined,
       price: grocPrice ? Number(grocPrice) : undefined,
+      assignedUserId: grocAssignedUserId || currentUser?.id,
       completed: false,
     });
     onClose();
@@ -456,17 +467,24 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Assign to Team Member</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Assign to Family Member 👨‍👩‍👧‍👦
+                  </label>
                   <select
                     value={taskAssignedUserId}
                     onChange={e => setTaskAssignedUserId(e.target.value)}
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
                   >
-                    <option value={currentUser?.id || ''}>Myself ({currentUser?.fullName})</option>
-                    {users.filter(u => u.id !== currentUser?.id).map(u => (
-                      <option key={u.id} value={u.id}>{u.fullName} ({u.role.toUpperCase()})</option>
+                    <option value={currentUser?.id || ''}>Myself ({currentUser?.fullName} - {currentUser?.relationship || 'Self'})</option>
+                    {familyMembers.filter(m => m.id !== currentUser?.id).map(m => (
+                      <option key={m.id} value={m.id}>
+                        {m.fullName} ({m.relationship || m.role})
+                      </option>
                     ))}
                   </select>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Only members of your family group can be assigned.
+                  </p>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Visibility Scope</label>
@@ -475,8 +493,8 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
                     onChange={e => setTaskIsShared(e.target.value === 'shared')}
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
                   >
+                    <option value="shared">👨‍👩‍👧‍👦 Family / Shared (Visible to Family)</option>
                     <option value="private">🔒 Private (Only Assignee & Creator)</option>
-                    <option value="shared">🌐 Team / Shared (Visible to Workspace)</option>
                   </select>
                 </div>
               </div>
@@ -573,6 +591,27 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
                     <option value="high">⚠️ High Priority</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Assign Deadline to Family Member 👨‍👩‍👧‍👦
+                </label>
+                <select
+                  value={dlAssignedUserId}
+                  onChange={e => setDlAssignedUserId(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                >
+                  <option value={currentUser?.id || ''}>Myself ({currentUser?.fullName} - {currentUser?.relationship || 'Self'})</option>
+                  {familyMembers.filter(m => m.id !== currentUser?.id).map(m => (
+                    <option key={m.id} value={m.id}>
+                      {m.fullName} ({m.relationship || m.role})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Only members of your family group can be assigned deadlines.
+                </p>
               </div>
 
               <div>
@@ -942,6 +981,27 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Assign to Family Member (Who should buy this?) 👨‍👩‍👧‍👦
+                </label>
+                <select
+                  value={grocAssignedUserId}
+                  onChange={e => setGrocAssignedUserId(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                >
+                  <option value={currentUser?.id || ''}>Myself ({currentUser?.fullName} - {currentUser?.relationship || 'Self'})</option>
+                  {familyMembers.filter(m => m.id !== currentUser?.id).map(m => (
+                    <option key={m.id} value={m.id}>
+                      {m.fullName} ({m.relationship || m.role})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Assigned family member will receive a reminder to purchase this item.
+                </p>
               </div>
 
               <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2">

@@ -20,6 +20,8 @@ interface GroceryViewProps {
 export const GroceryView: React.FC<GroceryViewProps> = ({ onOpenQuickCreate }) => {
   const {
     groceryItems,
+    users,
+    currentUser,
     toggleGroceryItem,
     deleteGroceryItem,
     clearPurchasedGrocery,
@@ -191,6 +193,19 @@ export const GroceryView: React.FC<GroceryViewProps> = ({ onOpenQuickCreate }) =
                         • {item.notes}
                       </span>
                     )}
+
+                    {/* Assigned Family Member Badge */}
+                    {item.assignedUserId && (() => {
+                      const assigneeUser = users.find(u => u.id === item.assignedUserId);
+                      if (!assigneeUser) return null;
+                      const isSelf = assigneeUser.id === currentUser?.id;
+                      return (
+                        <span className="ml-2 inline-flex items-center space-x-1 px-2 py-0.2 rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 text-[10px] font-medium">
+                          <span>👤 {isSelf ? 'Assigned to You' : assigneeUser.fullName}</span>
+                          {assigneeUser.relationship && <span className="text-slate-400">({assigneeUser.relationship})</span>}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
 

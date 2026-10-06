@@ -20,7 +20,7 @@ interface FollowUpsViewProps {
 }
 
 export const FollowUpsView: React.FC<FollowUpsViewProps> = ({ onOpenQuickCreate }) => {
-  const { followUps, effectiveNow, completeFollowUp, deleteFollowUp } = useApp();
+  const { followUps, effectiveNow, completeFollowUp, deleteFollowUp, users, currentUser } = useApp();
 
   const [activeTab, setActiveTab] = useState<'pending' | 'completed'>('pending');
   const [selectedFollowUp, setSelectedFollowUp] = useState<FollowUp | null>(null);
@@ -131,6 +131,16 @@ export const FollowUpsView: React.FC<FollowUpsViewProps> = ({ onOpenQuickCreate 
                     <span className="text-cyan-400 font-medium">
                       Next Follow-up: {formatHumanDate(fu.nextFollowUpDate)} {fu.nextFollowUpTime}
                     </span>
+                    {fu.assignedUserId && (() => {
+                      const assigneeUser = users.find(u => u.id === fu.assignedUserId);
+                      if (!assigneeUser) return null;
+                      const isSelf = assigneeUser.id === currentUser?.id;
+                      return (
+                        <span className="px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/25 text-[10px] font-medium">
+                          👤 {isSelf ? 'Assigned to You' : `Assigned to ${assigneeUser.fullName}`}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
 

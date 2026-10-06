@@ -15,6 +15,7 @@ import {
   LogOut,
   Phone,
   Crown,
+  Heart,
   Briefcase,
   Zap,
   Eye,
@@ -28,6 +29,7 @@ interface HeaderProps {
   onOpenSummary: () => void;
   onNavigateToNotifications: () => void;
   onNavigateToSettings: () => void;
+  onNavigateToFamily?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -36,6 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSummary,
   onNavigateToNotifications,
   onNavigateToSettings,
+  onNavigateToFamily,
 }) => {
   const {
     effectiveNow,
@@ -46,6 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
     markAllNotificationsRead,
     currentUser,
     users,
+    familyMembers,
     logout,
     switchUserDemo,
   } = useApp();
@@ -286,7 +290,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* User Dropdown */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-72 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
                   <div className="p-4 border-b border-slate-800 bg-slate-950/60">
                     <div className="flex items-center space-x-3">
                       <div
@@ -298,47 +302,123 @@ export const Header: React.FC<HeaderProps> = ({
                       <div className="min-w-0">
                         <div className="font-bold text-sm text-white truncate flex items-center space-x-1.5">
                           <span>{currentUser.fullName}</span>
-                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
+                            currentUser.role === 'admin'
+                              ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                              : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                          }`}>
                             {currentUser.role}
                           </span>
+                        </div>
+                        <div className="text-xs text-pink-300 font-medium flex items-center space-x-1 mt-0.5">
+                          <Heart className="w-3 h-3 text-pink-400" />
+                          <span>{currentUser.familyName || 'Family Member'} ({currentUser.relationship || 'Self'})</span>
                         </div>
                         <div className="text-xs text-indigo-400 font-mono flex items-center space-x-1 mt-0.5">
                           <Phone className="w-3 h-3" />
                           <span>{currentUser.countryCode} {currentUser.phoneNumber}</span>
                         </div>
-                        <div className="text-[10px] text-slate-400 truncate mt-0.5">
-                          {currentUser.department || 'Workspace Member'}
-                        </div>
                       </div>
                     </div>
                   </div>
 
+                  {/* Family Workspace Quick Access */}
+                  <div className="p-2 border-b border-slate-800 bg-indigo-950/20">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        if (onNavigateToFamily) onNavigateToFamily();
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 text-pink-300 hover:text-pink-200 transition flex items-center justify-between text-xs font-semibold"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Heart className="w-4 h-4 text-pink-400" />
+                        <span>Manage Family & Members</span>
+                      </div>
+                      <span className="text-[10px] bg-pink-500/20 px-2 py-0.5 rounded-full font-mono">
+                        {familyMembers.length} members
+                      </span>
+                    </button>
+                  </div>
+
                   {/* Quick Role & User Demo Switcher inside Menu */}
                   <div className="p-2 border-b border-slate-800 bg-slate-950/30 space-y-1">
-                    <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1">
-                      <ArrowRightLeft className="w-3 h-3 text-indigo-400" />
-                      <span>Switch Active User / Role</span>
+                    <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                      <span className="flex items-center space-x-1">
+                        <ArrowRightLeft className="w-3 h-3 text-indigo-400" />
+                        <span>{currentUser.role === 'admin' ? 'Switch Active User / Family' : 'Switch Family Member'}</span>
+                      </span>
+                      <span className="text-[10px] text-pink-400 font-mono lowercase">
+                        {currentUser.familyName || 'family'}
+                      </span>
                     </div>
-                    {users.map(u => (
-                      <button
-                        key={u.id}
-                        type="button"
-                        onClick={() => {
-                          switchUserDemo(u.id);
-                          setShowUserMenu(false);
-                        }}
-                        className={`w-full text-left px-2 py-1.5 rounded-lg text-xs transition flex items-center justify-between ${
-                          u.id === currentUser.id
-                            ? 'bg-indigo-600/20 text-white font-semibold border border-indigo-500/30'
-                            : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                        }`}
-                      >
-                        <span className="truncate">{u.fullName}</span>
-                        <span className="text-[10px] uppercase font-mono text-slate-400">
-                          {u.role}
-                        </span>
-                      </button>
-                    ))}
+
+                    <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+                      {/* Family members (accessible by all family members) */}
+                      {familyMembers.map(u => {
+                        const isCurrent = u.id === currentUser.id;
+                        return (
+                          <button
+                            key={u.id}
+                            type="button"
+                            onClick={() => {
+                              switchUserDemo(u.id);
+                              setShowUserMenu(false);
+                            }}
+                            className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition flex items-center justify-between ${
+                              isCurrent
+                                ? 'bg-indigo-600/20 text-white font-semibold border border-indigo-500/30'
+                                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                            }`}
+                          >
+                            <div className="truncate">
+                              <span className="font-medium">{u.fullName}</span>
+                              <span className="text-[10px] text-pink-300/80 ml-1.5">
+                                ({u.relationship || 'Member'})
+                              </span>
+                            </div>
+                            <span className={`text-[9px] uppercase font-mono px-1.5 py-0.2 rounded font-bold ${
+                              u.role === 'admin'
+                                ? 'bg-purple-500/20 text-purple-300'
+                                : 'bg-slate-800 text-slate-400'
+                            }`}>
+                              {u.role}
+                            </span>
+                          </button>
+                        );
+                      })}
+
+                      {/* Admin-only: Switch to other families */}
+                      {currentUser.role === 'admin' && users.filter(u => u.familyId !== currentUser.familyId).length > 0 && (
+                        <div className="pt-2 border-t border-slate-800 mt-2">
+                          <div className="px-2 py-1 text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+                            Other Families (Admin View Only)
+                          </div>
+                          {users.filter(u => u.familyId !== currentUser.familyId).map(u => (
+                            <button
+                              key={u.id}
+                              type="button"
+                              onClick={() => {
+                                switchUserDemo(u.id);
+                                setShowUserMenu(false);
+                              }}
+                              className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center justify-between"
+                            >
+                              <div className="truncate">
+                                <span>{u.fullName}</span>
+                                <span className="text-[10px] text-slate-500 ml-1.5">
+                                  ({u.familyName || 'Other Family'})
+                                </span>
+                              </div>
+                              <span className="text-[9px] uppercase font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-500">
+                                {u.role}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="p-2 space-y-1 text-xs">
@@ -350,7 +430,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className="w-full text-left px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center space-x-2"
                     >
                       <User className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Account & Team Settings</span>
+                      <span>Account & Settings</span>
                     </button>
 
                     <button

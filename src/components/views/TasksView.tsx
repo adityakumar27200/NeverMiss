@@ -32,11 +32,15 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
     categories,
     contacts,
     effectiveNow,
+    currentUser,
+    users,
     completeTask,
     updateTask,
     deleteTask,
     snoozeTask,
     rescheduleTask,
+    canEditItem,
+    canDeleteItem,
   } = useApp();
 
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed' | 'overdue'>('all');
@@ -241,6 +245,30 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
                         {assigned && (
                           <span className="text-purple-300 font-medium">
                             👤 {assigned.name}
+                          </span>
+                        )}
+
+                        {/* Family Assignee Badge */}
+                        {task.assignedUserId && (() => {
+                          const assigneeUser = users.find(u => u.id === task.assignedUserId);
+                          if (!assigneeUser) return null;
+                          const isSelf = assigneeUser.id === currentUser?.id;
+                          return (
+                            <span className="flex items-center space-x-1 px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 text-[10px] font-medium">
+                              <span>👤 {isSelf ? 'Assigned to You' : `Assigned to ${assigneeUser.fullName}`}</span>
+                              {assigneeUser.relationship && <span className="text-slate-400">({assigneeUser.relationship})</span>}
+                            </span>
+                          );
+                        })()}
+
+                        {/* Visibility Tag */}
+                        {task.isShared ? (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-pink-500/15 text-pink-300 border border-pink-500/25 font-medium">
+                            👨‍👩‍👧‍👦 Family
+                          </span>
+                        ) : (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-medium">
+                            🔒 Personal
                           </span>
                         )}
 

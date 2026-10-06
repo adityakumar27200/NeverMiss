@@ -10,6 +10,7 @@ import {
   ShieldAlert,
   Bell,
   CheckCircle2,
+  User,
 } from 'lucide-react';
 import { parseDateTime, getRelativeTimeText, formatTime12Hour, formatHumanDate } from '../../utils/dateUtils';
 import { CustomScheduleModal, ScheduleItemTarget } from '../common/CustomScheduleModal';
@@ -19,7 +20,7 @@ interface DeadlinesViewProps {
 }
 
 export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate }) => {
-  const { deadlines, categories, effectiveNow, markDeadlineMet, deleteDeadline } = useApp();
+  const { deadlines, categories, effectiveNow, markDeadlineMet, deleteDeadline, users, currentUser } = useApp();
   const [scheduleTarget, setScheduleTarget] = useState<ScheduleItemTarget | null>(null);
 
   const activeDeadlines = deadlines.filter(d => d.status === 'active');
@@ -129,6 +130,19 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
                           <span>{cat.name}</span>
                         </span>
                       )}
+
+                      {/* Family Assignee Badge */}
+                      {dl.assignedUserId && (() => {
+                        const assigneeUser = users.find(u => u.id === dl.assignedUserId);
+                        if (!assigneeUser) return null;
+                        const isSelf = assigneeUser.id === currentUser?.id;
+                        return (
+                          <span className="flex items-center space-x-1 px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/25 text-[10px] font-medium">
+                            <span>👤 {isSelf ? 'Assigned to You' : `Assigned to ${assigneeUser.fullName}`}</span>
+                            {assigneeUser.relationship && <span className="text-slate-400">({assigneeUser.relationship})</span>}
+                          </span>
+                        );
+                      })()}
                     </div>
 
                     {/* Progressive Trigger Badges */}

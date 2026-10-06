@@ -39,13 +39,21 @@ export type ReminderTiming =
   | '1h_after'
   | '1d_after';
 
-export type UserRole = 'admin' | 'manager' | 'member' | 'viewer';
+export type UserRole = 'admin' | 'user';
+
+export interface FamilyGroup {
+  id: string;
+  name: string;
+  createdByUserId: string;
+  createdAt: string;
+}
 
 export interface Task {
   id: string;
   userId?: string; // Owner / creator
-  assignedUserId?: string; // Assigned team member
-  isShared?: boolean; // Shared with team/family
+  familyId?: string; // Family group identifier
+  assignedUserId?: string; // Assigned family member
+  isShared?: boolean; // Shared with family
   title: string;
   description: string;
   categoryId: string;
@@ -68,6 +76,7 @@ export interface Task {
 export interface CalendarEvent {
   id: string;
   userId?: string;
+  familyId?: string;
   assignedUserId?: string;
   isShared?: boolean;
   title: string;
@@ -95,6 +104,7 @@ export type DeadlineTrigger =
 export interface Deadline {
   id: string;
   userId?: string;
+  familyId?: string;
   assignedUserId?: string;
   isShared?: boolean;
   title: string;
@@ -128,6 +138,7 @@ export interface RoutineStep {
 export interface Routine {
   id: string;
   userId?: string;
+  familyId?: string;
   assignedUserId?: string;
   isShared?: boolean;
   name: string;
@@ -157,7 +168,9 @@ export interface Routine {
 export interface FollowUp {
   id: string;
   userId?: string;
+  familyId?: string;
   assignedUserId?: string;
+  isShared?: boolean;
   contactId?: string;
   contactName: string;
   subject: string;
@@ -184,6 +197,8 @@ export type GroceryCategory =
 export interface GroceryItem {
   id: string;
   userId?: string;
+  familyId?: string;
+  assignedUserId?: string;
   isShared?: boolean;
   name: string;
   quantity: number;
@@ -231,6 +246,7 @@ export interface NotificationItem {
 export interface PlannerBlock {
   id: string;
   userId?: string;
+  familyId?: string;
   startTime: string; // e.g. "07:00"
   endTime: string; // e.g. "08:00"
   title: string;
@@ -261,7 +277,10 @@ export interface UserAccount {
   phoneNumber: string;
   countryCode: string;
   password: string;
-  role: UserRole;
+  role: UserRole; // 'admin' | 'user'
+  familyId: string;
+  familyName?: string;
+  relationship?: string; // e.g., 'Self', 'Spouse', 'Child', 'Parent', 'Sibling', 'Family Member'
   department?: string;
   avatarColor: string;
   createdAt: string;

@@ -494,7 +494,7 @@ export const LoginView: React.FC = () => {
             <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
               <span className="font-semibold text-slate-300 flex items-center space-x-1">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Quick 1-Click Demo Accounts:</span>
+                <span>Quick 1-Click Demo Logins:</span>
               </span>
               <span className="text-[10px] text-slate-500">password: password123</span>
             </div>
@@ -503,18 +503,61 @@ export const LoginView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleQuickDemoLogin('+91', '9876543210', 'password123')}
-                className="p-2.5 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-left transition cursor-pointer flex items-center justify-between group"
+                className="p-2.5 bg-slate-800/80 hover:bg-slate-800 border border-purple-500/30 rounded-xl text-left transition cursor-pointer flex items-center justify-between group"
               >
                 <div>
-                  <div className="font-semibold text-slate-200 group-hover:text-emerald-400 transition flex items-center space-x-1.5">
+                  <div className="font-semibold text-slate-200 group-hover:text-purple-400 transition flex items-center space-x-1.5">
                     <span>Aditya Kumar</span>
                     <span className="text-[9px] px-1.5 py-0.2 bg-purple-500/20 text-purple-300 rounded font-bold">ADMIN</span>
                   </div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                  <div className="text-[10px] text-pink-300/90 font-medium">
+                    👨‍👩‍👧‍👦 Kumar Family (Head)
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono">
                     +91 9876543210
                   </div>
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400" />
+                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-400" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('+91', '9123456789', 'password123')}
+                className="p-2.5 bg-slate-800/80 hover:bg-slate-800 border border-indigo-500/30 rounded-xl text-left transition cursor-pointer flex items-center justify-between group"
+              >
+                <div>
+                  <div className="font-semibold text-slate-200 group-hover:text-indigo-400 transition flex items-center space-x-1.5">
+                    <span>Priya Kumar</span>
+                    <span className="text-[9px] px-1.5 py-0.2 bg-indigo-500/20 text-indigo-300 rounded font-bold">USER</span>
+                  </div>
+                  <div className="text-[10px] text-pink-300/90 font-medium">
+                    👨‍👩‍👧‍👦 Kumar Family (Spouse)
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono">
+                    +91 9123456789
+                  </div>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('+91', '9988776655', 'password123')}
+                className="p-2.5 bg-slate-800/80 hover:bg-slate-800 border border-indigo-500/30 rounded-xl text-left transition cursor-pointer flex items-center justify-between group"
+              >
+                <div>
+                  <div className="font-semibold text-slate-200 group-hover:text-blue-400 transition flex items-center space-x-1.5">
+                    <span>Aarav Kumar</span>
+                    <span className="text-[9px] px-1.5 py-0.2 bg-indigo-500/20 text-indigo-300 rounded font-bold">USER</span>
+                  </div>
+                  <div className="text-[10px] text-pink-300/90 font-medium">
+                    👨‍👩‍👧‍👦 Kumar Family (Son)
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono">
+                    +91 9988776655
+                  </div>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-400" />
               </button>
 
               <button
@@ -523,49 +566,18 @@ export const LoginView: React.FC = () => {
                 className="p-2.5 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-left transition cursor-pointer flex items-center justify-between group"
               >
                 <div>
-                  <div className="font-semibold text-slate-200 group-hover:text-indigo-400 transition flex items-center space-x-1.5">
+                  <div className="font-semibold text-slate-200 group-hover:text-teal-400 transition flex items-center space-x-1.5">
                     <span>Alex Vance</span>
-                    <span className="text-[9px] px-1.5 py-0.2 bg-blue-500/20 text-blue-300 rounded font-bold">MANAGER</span>
+                    <span className="text-[9px] px-1.5 py-0.2 bg-indigo-500/20 text-indigo-300 rounded font-bold">USER</span>
                   </div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                  <div className="text-[10px] text-slate-400 font-medium">
+                    👨‍👩‍👧‍👦 Vance Family (Isolated)
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono">
                     +1 555-0199
                   </div>
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('+91', '9123456789', 'password123')}
-                className="p-2.5 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-left transition cursor-pointer flex items-center justify-between group"
-              >
-                <div>
-                  <div className="font-semibold text-slate-200 group-hover:text-amber-400 transition flex items-center space-x-1.5">
-                    <span>Priya Patel</span>
-                    <span className="text-[9px] px-1.5 py-0.2 bg-emerald-500/20 text-emerald-300 rounded font-bold">MEMBER</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                    +91 9123456789
-                  </div>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('+1', '5550999', 'password123')}
-                className="p-2.5 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-left transition cursor-pointer flex items-center justify-between group"
-              >
-                <div>
-                  <div className="font-semibold text-slate-200 group-hover:text-rose-400 transition flex items-center space-x-1.5">
-                    <span>Marcus Brody</span>
-                    <span className="text-[9px] px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded font-bold">VIEWER</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                    +1 555-0999
-                  </div>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-rose-400" />
+                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-teal-400" />
               </button>
             </div>
           </div>

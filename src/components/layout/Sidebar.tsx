@@ -18,10 +18,12 @@ import {
   Settings,
   Smartphone,
   AlertTriangle,
+  Heart,
 } from 'lucide-react';
 
 export type ActiveTab =
   | 'dashboard'
+  | 'family'
   | 'tasks'
   | 'events'
   | 'deadlines'
@@ -52,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile,
   setIsOpenMobile,
 }) => {
-  const { tasks, deadlines, followUps, groceryItems, notifications } = useApp();
+  const { tasks, deadlines, followUps, groceryItems, notifications, familyMembers } = useApp();
 
   const overdueCount = tasks.filter(t => t.status === 'overdue').length;
   const activeDeadlinesCount = deadlines.filter(d => d.status === 'active').length;
@@ -67,6 +69,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: LayoutDashboard,
       badge: overdueCount > 0 ? `${overdueCount} overdue` : undefined,
       badgeColor: 'bg-red-500/20 text-red-400 border-red-500/30',
+    },
+    {
+      id: 'family' as ActiveTab,
+      label: 'Family & Members',
+      icon: Heart,
+      badge: `${familyMembers.length} members`,
+      badgeColor: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
     },
     {
       id: 'tasks' as ActiveTab,

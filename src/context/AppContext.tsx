@@ -135,11 +135,28 @@ interface AppContextType {
   currentUser: UserAccount | null;
   users: UserAccount[];
   loginWithPhone: (countryCode: string, phoneNumber: string, password: string) => { success: boolean; error?: string };
-  registerWithPhone: (fullName: string, countryCode: string, phoneNumber: string, password: string, role?: UserRole) => { success: boolean; error?: string };
+  registerWithPhone: (fullName: string, countryCode: string, phoneNumber: string, password: string, role?: UserRole, familyName?: string, relationship?: string) => { success: boolean; error?: string };
   logout: () => void;
   resetPasswordWithPhone: (countryCode: string, phoneNumber: string, newPassword: string) => { success: boolean; error?: string };
 
-  // Global All-Team Data (for Admins & Managers)
+  // Family Management & Family Isolation (Users can add family members and only assign to their own family)
+  familyMembers: UserAccount[];
+  allFamilies: { id: string; name: string; memberCount: number; members: UserAccount[] }[];
+  addFamilyMember: (data: {
+    fullName: string;
+    countryCode: string;
+    phoneNumber: string;
+    password: string;
+    relationship: string;
+    role?: UserRole;
+    avatarColor?: string;
+  }) => { success: boolean; error?: string; user?: UserAccount };
+  updateFamilyMember: (userId: string, updates: Partial<UserAccount>) => void;
+  removeFamilyMember: (userId: string) => { success: boolean; error?: string };
+  updateFamilyName: (name: string) => void;
+  canAssignToUser: (targetUserId: string) => boolean;
+
+  // Global All-Items Data
   allTasks: Task[];
   allDeadlines: Deadline[];
   allEvents: CalendarEvent[];
@@ -147,12 +164,12 @@ interface AppContextType {
   allFollowUps: FollowUp[];
   allGroceryItems: GroceryItem[];
 
-  // User and Role Filtering
-  teamScope: 'my' | 'all' | string;
-  setTeamScope: (scope: 'my' | 'all' | string) => void;
+  // User and Family Scope Filtering
+  teamScope: 'my' | 'family' | 'all' | string;
+  setTeamScope: (scope: 'my' | 'family' | 'all' | string) => void;
   canCreate: boolean;
-  canEditItem: (item: { userId?: string; assignedUserId?: string }) => boolean;
-  canDeleteItem: (item: { userId?: string; assignedUserId?: string }) => boolean;
+  canEditItem: (item: { userId?: string; assignedUserId?: string; familyId?: string }) => boolean;
+  canDeleteItem: (item: { userId?: string; assignedUserId?: string; familyId?: string }) => boolean;
   canManageRoles: boolean;
   updateUserRole: (userId: string, newRole: UserRole) => void;
   switchUserDemo: (userId: string) => void;
@@ -201,92 +218,179 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [settings, setSettings] = useState<AppSettings>(() => loadStored(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS));
   const [users, setUsers] = useState<UserAccount[]>(() => {
     const stored = loadStored<UserAccount[]>(STORAGE_KEYS.USERS, INITIAL_USERS);
-    if (!stored || stored.length === 0 || !stored[0].role) {
+    if (!stored || stored.length === 0) {
       return INITIAL_USERS;
     }
-    return stored;
+    // Clean and normalize all stored user accounts to strict 'admin' | 'user' roles and valid familyId
+    return stored.map(u => ({
+      ...u,
+      role: (u.role === 'admin' ? 'admin' : 'user') as UserRole,
+      familyId: u.familyId || (u.id === 'usr-1' || u.id === 'usr-4' ? 'fam-vance' : 'fam-kumar'),
+      familyName: u.familyName || (u.familyId === 'fam-vance' ? 'Vance Family' : 'Kumar Family'),
+      relationship: u.relationship || (u.role === 'admin' ? 'Self (Admin)' : 'Family Member'),
+    }));
   });
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
     const stored = loadStored<UserAccount | null>(STORAGE_KEYS.CURRENT_USER, INITIAL_USERS[0]);
-    if (!stored || !stored.role) {
+    if (!stored) {
       return INITIAL_USERS[0];
     }
-    return stored;
+    return {
+      ...stored,
+      role: (stored.role === 'admin' ? 'admin' : 'user') as UserRole,
+      familyId: stored.familyId || (stored.id === 'usr-1' || stored.id === 'usr-4' ? 'fam-vance' : 'fam-kumar'),
+      familyName: stored.familyName || (stored.familyId === 'fam-vance' ? 'Vance Family' : 'Kumar Family'),
+      relationship: stored.relationship || (stored.role === 'admin' ? 'Self (Admin)' : 'Family Member'),
+    };
   });
 
-  // Team Scope Filter: 'my' (My own/assigned items), 'all' (all team items - admin/manager), or specific userId
-  const [teamScope, setTeamScope] = useState<'my' | 'all' | string>('my');
+  // Team Scope Filter: 'my' (My own/assigned items), 'family' (all family items), 'all' (system wide for admin), or specific userId
+  const [teamScope, setTeamScope] = useState<'my' | 'family' | 'all' | string>('my');
 
-  // Role permissions
-  const userRole = currentUser?.role || 'member';
+  // Role permissions: Only 'admin' and 'user'
+  const userRole = currentUser?.role === 'admin' ? 'admin' : 'user';
   const isAdmin = userRole === 'admin';
-  const isManager = userRole === 'manager';
-  const isMember = userRole === 'member';
-  const isViewer = userRole === 'viewer';
+  const isUser = !isAdmin;
 
-  const canCreate = !isViewer;
+  const canCreate = true;
   const canManageRoles = isAdmin;
 
-  const canEditItem = useCallback((item: { userId?: string; assignedUserId?: string }) => {
-    if (!currentUser) return false;
-    if (isViewer) return false;
-    if (isAdmin || isManager) return true;
-    return item.userId === currentUser.id || item.assignedUserId === currentUser.id;
-  }, [isAdmin, isManager, isViewer, currentUser]);
+  // Family members list for the current active user
+  const familyMembers = useMemo(() => {
+    if (!currentUser) return [];
+    return users.filter(u => u.familyId === currentUser.familyId);
+  }, [users, currentUser]);
 
-  const canDeleteItem = useCallback((item: { userId?: string; assignedUserId?: string }) => {
+  // All families grouped together (for Admin overview)
+  const allFamilies = useMemo(() => {
+    const famMap: Record<string, { id: string; name: string; memberCount: number; members: UserAccount[] }> = {};
+    users.forEach(u => {
+      const fId = u.familyId || 'fam-default';
+      if (!famMap[fId]) {
+        famMap[fId] = {
+          id: fId,
+          name: u.familyName || `${u.fullName}'s Family`,
+          memberCount: 0,
+          members: [],
+        };
+      }
+      famMap[fId].memberCount += 1;
+      famMap[fId].members.push(u);
+    });
+    return Object.values(famMap);
+  }, [users]);
+
+  // Check if a target user is in the current user's family
+  const canAssignToUser = useCallback((targetUserId: string) => {
     if (!currentUser) return false;
-    if (isViewer) return false;
+    if (targetUserId === currentUser.id) return true;
     if (isAdmin) return true;
-    if (isManager) return item.userId === currentUser.id || item.assignedUserId === currentUser.id;
+    const target = users.find(u => u.id === targetUserId);
+    return target ? target.familyId === currentUser.familyId : false;
+  }, [currentUser, isAdmin, users]);
+
+  const canEditItem = useCallback((item: { userId?: string; assignedUserId?: string; familyId?: string }) => {
+    if (!currentUser) return false;
+    if (isAdmin) return true;
+    if (item.userId === currentUser.id || item.assignedUserId === currentUser.id) return true;
+    if (item.familyId && item.familyId === currentUser.familyId) return true;
+    return false;
+  }, [isAdmin, currentUser]);
+
+  const canDeleteItem = useCallback((item: { userId?: string; assignedUserId?: string; familyId?: string }) => {
+    if (!currentUser) return false;
+    if (isAdmin) return true;
     return item.userId === currentUser.id;
-  }, [isAdmin, isManager, isViewer, currentUser]);
+  }, [isAdmin, currentUser]);
 
-  // Scoped Data Partitioning based on User & Role
-  const filterByScope = useCallback(<T extends { userId?: string; assignedUserId?: string; isShared?: boolean }>(list: T[]): T[] => {
+  // Scoped Data Partitioning based on User & Family Group
+  const filterByScope = useCallback(<T extends { userId?: string; assignedUserId?: string; isShared?: boolean; familyId?: string }>(list: T[]): T[] => {
     if (!currentUser) return list;
+    const currentFamId = currentUser.familyId || 'fam-default';
+    const famMemberIds = new Set(users.filter(u => u.familyId === currentFamId).map(u => u.id));
 
-    if (isViewer) {
-      return list.filter(item => item.isShared || item.userId === currentUser.id || item.assignedUserId === currentUser.id);
-    }
-
-    if (isAdmin || isManager) {
+    if (isAdmin) {
       if (teamScope === 'all') return list;
       if (teamScope === 'my') {
         return list.filter(item => item.userId === currentUser.id || item.assignedUserId === currentUser.id);
       }
+      if (teamScope === 'family') {
+        return list.filter(item => item.familyId === currentFamId || famMemberIds.has(item.userId || '') || famMemberIds.has(item.assignedUserId || ''));
+      }
       return list.filter(item => item.userId === teamScope || item.assignedUserId === teamScope);
     }
 
-    // Regular member sees own items + items assigned to them + shared items
-    return list.filter(item => item.userId === currentUser.id || item.assignedUserId === currentUser.id || item.isShared);
-  }, [currentUser, isViewer, isAdmin, isManager, teamScope]);
+    // Regular User: Strictly restricted to their own family data
+    const familyItems = list.filter(item =>
+      item.familyId === currentFamId ||
+      famMemberIds.has(item.userId || '') ||
+      famMemberIds.has(item.assignedUserId || '')
+    );
+
+    if (teamScope === 'my') {
+      return familyItems.filter(item => item.userId === currentUser.id || item.assignedUserId === currentUser.id);
+    }
+    if (teamScope === 'family' || teamScope === 'all') {
+      return familyItems;
+    }
+    // Filter by specific family member ID
+    return familyItems.filter(item => item.userId === teamScope || item.assignedUserId === teamScope);
+  }, [currentUser, isAdmin, teamScope, users]);
 
   const scopedTasks = useMemo(() => filterByScope(tasks), [tasks, filterByScope]);
   const scopedDeadlines = useMemo(() => filterByScope(deadlines), [deadlines, filterByScope]);
   const scopedEvents = useMemo(() => filterByScope(events), [events, filterByScope]);
   const scopedRoutines = useMemo(() => {
     if (!currentUser) return routines;
-    if (isViewer) return routines.filter(r => r.isShared || r.userId === currentUser.id);
-    if ((isAdmin || isManager) && teamScope === 'all') return routines;
-    if ((isAdmin || isManager) && teamScope !== 'my') return routines.filter(r => r.userId === teamScope);
-    return routines.filter(r => r.userId === currentUser.id || (isMember && r.isShared));
-  }, [routines, currentUser, isViewer, isAdmin, isManager, isMember, teamScope]);
+    const currentFamId = currentUser.familyId || 'fam-default';
+    const famMemberIds = new Set(users.filter(u => u.familyId === currentFamId).map(u => u.id));
+    
+    if (isAdmin && teamScope === 'all') return routines;
+    
+    const familyRoutines = routines.filter(r => r.familyId === currentFamId || famMemberIds.has(r.userId || '') || famMemberIds.has(r.assignedUserId || ''));
+    if (teamScope === 'my') {
+      return familyRoutines.filter(r => r.userId === currentUser.id || r.assignedUserId === currentUser.id);
+    }
+    if (teamScope === 'family' || teamScope === 'all') {
+      return familyRoutines;
+    }
+    return familyRoutines.filter(r => r.userId === teamScope || r.assignedUserId === teamScope);
+  }, [routines, currentUser, isAdmin, teamScope, users]);
 
   const scopedFollowUps = useMemo(() => filterByScope(followUps), [followUps, filterByScope]);
   const scopedGroceryItems = useMemo(() => {
     if (!currentUser) return groceryItems;
-    if ((isAdmin || isManager) && teamScope === 'all') return groceryItems;
-    if ((isAdmin || isManager) && teamScope !== 'my') return groceryItems.filter(g => g.userId === teamScope);
-    return groceryItems.filter(g => g.isShared || g.userId === currentUser.id);
-  }, [groceryItems, currentUser, isAdmin, isManager, teamScope]);
+    const currentFamId = currentUser.familyId || 'fam-default';
+    const famMemberIds = new Set(users.filter(u => u.familyId === currentFamId).map(u => u.id));
+    
+    if (isAdmin && teamScope === 'all') return groceryItems;
+    
+    const familyGrocery = groceryItems.filter(g => g.familyId === currentFamId || famMemberIds.has(g.userId || '') || famMemberIds.has(g.assignedUserId || ''));
+    if (teamScope === 'my') {
+      return familyGrocery.filter(g => g.userId === currentUser.id || g.assignedUserId === currentUser.id);
+    }
+    if (teamScope === 'family' || teamScope === 'all') {
+      return familyGrocery;
+    }
+    return familyGrocery.filter(g => g.userId === teamScope || g.assignedUserId === teamScope);
+  }, [groceryItems, currentUser, isAdmin, teamScope, users]);
 
   const scopedPlannerBlocks = useMemo(() => {
     if (!currentUser) return plannerBlocks;
-    if ((isAdmin || isManager) && teamScope === 'all') return plannerBlocks;
-    if ((isAdmin || isManager) && teamScope !== 'my') return plannerBlocks.filter(b => b.userId === teamScope);
-    return plannerBlocks.filter(b => b.userId === currentUser.id);
-  }, [plannerBlocks, currentUser, isAdmin, isManager, teamScope]);
+    const currentFamId = currentUser.familyId || 'fam-default';
+    const famMemberIds = new Set(users.filter(u => u.familyId === currentFamId).map(u => u.id));
+    
+    if (isAdmin && teamScope === 'all') return plannerBlocks;
+    
+    const familyBlocks = plannerBlocks.filter(b => b.familyId === currentFamId || famMemberIds.has(b.userId || ''));
+    if (teamScope === 'my') {
+      return familyBlocks.filter(b => b.userId === currentUser.id);
+    }
+    if (teamScope === 'family' || teamScope === 'all') {
+      return familyBlocks;
+    }
+    return familyBlocks.filter(b => b.userId === teamScope);
+  }, [plannerBlocks, currentUser, isAdmin, teamScope, users]);
 
   const scopedNotifications = useMemo(() => {
     if (!currentUser) return notifications;
@@ -417,16 +521,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Tasks operations
   const addTask = useCallback((taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const currentFamId = currentUser?.familyId || 'fam-kumar';
+    let targetAssignee = taskData.assignedUserId || taskData.userId || currentUser?.id || 'usr-2';
+    
+    // Validate family assignment: Cannot assign to non-family members
+    if (!canAssignToUser(targetAssignee)) {
+      targetAssignee = currentUser?.id || 'usr-2';
+    }
+
     const newTask: Task = {
       ...taskData,
       id: `task-${Date.now()}`,
       userId: taskData.userId || currentUser?.id || 'usr-2',
-      assignedUserId: taskData.assignedUserId || taskData.userId || currentUser?.id || 'usr-2',
-      isShared: taskData.isShared || false,
+      familyId: taskData.familyId || currentFamId,
+      assignedUserId: targetAssignee,
+      isShared: taskData.isShared !== undefined ? taskData.isShared : true,
       createdAt: effectiveNow.toISOString(),
       updatedAt: effectiveNow.toISOString(),
     };
     setTasks(prev => [newTask, ...prev]);
+    
     addNotification({
       title: 'Task Created',
       message: `"${newTask.title}" scheduled for ${newTask.dueDate} ${newTask.dueTime}`,
@@ -435,7 +549,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       targetId: newTask.id,
       userId: newTask.userId,
     });
-  }, [addNotification, effectiveNow, currentUser?.id]);
+
+    // If assigned to a family member, notify them specifically!
+    if (newTask.assignedUserId && newTask.assignedUserId !== currentUser?.id) {
+      addNotification({
+        title: '⚡ Task Assigned to You',
+        message: `${currentUser?.fullName || 'Family member'} assigned "${newTask.title}" to you (Due: ${newTask.dueDate}).`,
+        type: 'task',
+        priority: 'high',
+        targetId: newTask.id,
+        userId: newTask.assignedUserId,
+      });
+    }
+  }, [addNotification, effectiveNow, currentUser, canAssignToUser]);
 
   const updateTask = useCallback((id: string, updates: Partial<Task>) => {
     setTasks(prev => prev.map(t => (t.id === id ? { ...t, ...updates, updatedAt: effectiveNow.toISOString() } : t)));
@@ -536,16 +662,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Events operations
   const addEvent = useCallback((eventData: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
+    const currentFamId = currentUser?.familyId || 'fam-kumar';
+    let targetAssignee = eventData.assignedUserId || currentUser?.id || 'usr-2';
+    if (!canAssignToUser(targetAssignee)) {
+      targetAssignee = currentUser?.id || 'usr-2';
+    }
+
     const newEvent: CalendarEvent = {
       ...eventData,
       id: `evt-${Date.now()}`,
       userId: eventData.userId || currentUser?.id || 'usr-2',
-      assignedUserId: eventData.assignedUserId || currentUser?.id || 'usr-2',
+      familyId: eventData.familyId || currentFamId,
+      assignedUserId: targetAssignee,
       isShared: eventData.isShared !== undefined ? eventData.isShared : true,
       createdAt: effectiveNow.toISOString(),
     };
     setEvents(prev => [...prev, newEvent]);
-  }, [effectiveNow, currentUser?.id]);
+  }, [effectiveNow, currentUser?.id, currentUser?.familyId, canAssignToUser]);
 
   const updateEvent = useCallback((id: string, updates: Partial<CalendarEvent>) => {
     setEvents(prev => prev.map(e => e.id === id ? { ...e, ...updates } : e));
@@ -557,16 +690,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Deadlines operations
   const addDeadline = useCallback((dlData: Omit<Deadline, 'id' | 'createdAt'>) => {
+    const currentFamId = currentUser?.familyId || 'fam-kumar';
+    let targetAssignee = dlData.assignedUserId || currentUser?.id || 'usr-2';
+    if (!canAssignToUser(targetAssignee)) {
+      targetAssignee = currentUser?.id || 'usr-2';
+    }
+
     const newDl: Deadline = {
       ...dlData,
       id: `dl-${Date.now()}`,
       userId: dlData.userId || currentUser?.id || 'usr-2',
-      assignedUserId: dlData.assignedUserId || currentUser?.id || 'usr-2',
-      isShared: dlData.isShared || false,
+      familyId: dlData.familyId || currentFamId,
+      assignedUserId: targetAssignee,
+      isShared: dlData.isShared !== undefined ? dlData.isShared : true,
       createdAt: effectiveNow.toISOString(),
     };
     setDeadlines(prev => [newDl, ...prev]);
-  }, [effectiveNow, currentUser?.id]);
+
+    if (newDl.assignedUserId && newDl.assignedUserId !== currentUser?.id) {
+      addNotification({
+        title: '⚠️ Hard Deadline Assigned',
+        message: `${currentUser?.fullName || 'Family member'} assigned deadline "${newDl.title}" to you (Due: ${newDl.deadlineDate} ${newDl.deadlineTime}).`,
+        type: 'deadline',
+        priority: 'high',
+        targetId: newDl.id,
+        userId: newDl.assignedUserId,
+      });
+    }
+  }, [effectiveNow, currentUser, canAssignToUser, addNotification]);
 
   const updateDeadline = useCallback((id: string, updates: Partial<Deadline>) => {
     setDeadlines(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
@@ -584,16 +735,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Routines operations
   const addRoutine = useCallback((rtnData: Omit<Routine, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const currentFamId = currentUser?.familyId || 'fam-kumar';
+    let targetAssignee = rtnData.assignedUserId || currentUser?.id || 'usr-2';
+    if (!canAssignToUser(targetAssignee)) {
+      targetAssignee = currentUser?.id || 'usr-2';
+    }
+
     const newRtn: Routine = {
       ...rtnData,
       id: `rtn-${Date.now()}`,
       userId: rtnData.userId || currentUser?.id || 'usr-2',
-      isShared: rtnData.isShared || false,
+      familyId: rtnData.familyId || currentFamId,
+      assignedUserId: targetAssignee,
+      isShared: rtnData.isShared !== undefined ? rtnData.isShared : true,
       createdAt: effectiveNow.toISOString(),
       updatedAt: effectiveNow.toISOString(),
     };
     setRoutines(prev => [...prev, newRtn]);
-  }, [effectiveNow, currentUser?.id]);
+  }, [effectiveNow, currentUser, canAssignToUser]);
 
   const updateRoutine = useCallback((id: string, updates: Partial<Routine>) => {
     setRoutines(prev => prev.map(r => r.id === id ? { ...r, ...updates, updatedAt: effectiveNow.toISOString() } : r));
@@ -702,15 +861,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Follow-ups operations
   const addFollowUp = useCallback((fuData: Omit<FollowUp, 'id' | 'createdAt'>) => {
+    const currentFamId = currentUser?.familyId || 'fam-kumar';
+    let targetAssignee = fuData.assignedUserId || currentUser?.id || 'usr-2';
+    if (!canAssignToUser(targetAssignee)) {
+      targetAssignee = currentUser?.id || 'usr-2';
+    }
+
     const newFu: FollowUp = {
       ...fuData,
       id: `fu-${Date.now()}`,
       userId: fuData.userId || currentUser?.id || 'usr-2',
-      assignedUserId: fuData.assignedUserId || currentUser?.id || 'usr-2',
+      familyId: fuData.familyId || currentFamId,
+      assignedUserId: targetAssignee,
+      isShared: fuData.isShared !== undefined ? fuData.isShared : true,
       createdAt: effectiveNow.toISOString(),
     };
     setFollowUps(prev => [newFu, ...prev]);
-  }, [effectiveNow, currentUser?.id]);
+  }, [effectiveNow, currentUser, canAssignToUser]);
 
   const updateFollowUp = useCallback((id: string, updates: Partial<FollowUp>) => {
     setFollowUps(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
@@ -762,15 +929,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Grocery operations
   const addGroceryItem = useCallback((gData: Omit<GroceryItem, 'id' | 'createdAt'>) => {
+    const currentFamId = currentUser?.familyId || 'fam-kumar';
+    let targetAssignee = gData.assignedUserId || currentUser?.id || 'usr-2';
+    if (!canAssignToUser(targetAssignee)) {
+      targetAssignee = currentUser?.id || 'usr-2';
+    }
+
     const newItem: GroceryItem = {
       ...gData,
       id: `groc-${Date.now()}`,
       userId: gData.userId || currentUser?.id || 'usr-2',
+      familyId: gData.familyId || currentFamId,
+      assignedUserId: targetAssignee,
       isShared: gData.isShared !== undefined ? gData.isShared : true,
       createdAt: effectiveNow.toISOString(),
     };
     setGroceryItems(prev => [newItem, ...prev]);
-  }, [effectiveNow, currentUser?.id]);
+
+    if (newItem.assignedUserId && newItem.assignedUserId !== currentUser?.id) {
+      addNotification({
+        title: '🛒 Grocery Item Assigned to You',
+        message: `${currentUser?.fullName || 'Family member'} assigned "${newItem.name}" (${newItem.quantity} ${newItem.unit}) to you.`,
+        type: 'grocery',
+        priority: 'normal',
+        targetId: newItem.id,
+        userId: newItem.assignedUserId,
+      });
+    }
+  }, [effectiveNow, currentUser, canAssignToUser, addNotification]);
 
   const updateGroceryItem = useCallback((id: string, updates: Partial<GroceryItem>) => {
     setGroceryItems(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
@@ -952,7 +1138,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return { success: true };
   }, [users, effectiveNow, addNotification]);
 
-  const registerWithPhone = useCallback((fullName: string, countryCode: string, phoneNumber: string, password: string, role: UserRole = 'member') => {
+  const registerWithPhone = useCallback((
+    fullName: string,
+    countryCode: string,
+    phoneNumber: string,
+    password: string,
+    role: UserRole = 'user',
+    familyName?: string,
+    relationship: string = 'Self'
+  ) => {
     const cleaned = cleanPhone(phoneNumber);
     if (!cleaned || cleaned.length < 5) {
       return { success: false, error: 'Please enter a valid phone number (at least 5 digits).' };
@@ -969,14 +1163,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const colors = ['#3B82F6', '#10B981', '#EC4899', '#8B5CF6', '#F59E0B', '#06B6D4'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
+    const assignedFamilyId = `fam-${Date.now()}`;
+    const assignedFamilyName = familyName?.trim() || `${fullName.trim()}'s Family`;
+
     const newUser: UserAccount = {
       id: `usr-${Date.now()}`,
       fullName: fullName.trim() || 'New User',
       countryCode,
       phoneNumber: cleaned,
       password,
-      role: role || 'member',
-      department: 'General Workspace',
+      role: role || 'user',
+      familyId: assignedFamilyId,
+      familyName: assignedFamilyName,
+      relationship: relationship || 'Self',
+      department: 'Family Household',
       avatarColor: randomColor,
       createdAt: effectiveNow.toISOString(),
       lastLoginAt: effectiveNow.toISOString(),
@@ -986,14 +1186,107 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentUser(newUser);
     setTeamScope('my');
     addNotification({
-      title: 'Account Created 🎉',
-      message: `Welcome, ${newUser.fullName}! Logged in as ${newUser.role.toUpperCase()}.`,
+      title: 'Family Workspace Created 🎉',
+      message: `Welcome, ${newUser.fullName}! Your family group "${assignedFamilyName}" has been established. You can now add family members and assign tasks, deadlines, and groceries to each other!`,
       type: 'system',
       priority: 'normal',
       userId: newUser.id,
     });
     return { success: true };
   }, [users, effectiveNow, addNotification]);
+
+  const addFamilyMember = useCallback((data: {
+    fullName: string;
+    countryCode: string;
+    phoneNumber: string;
+    password: string;
+    relationship: string;
+    role?: UserRole;
+    avatarColor?: string;
+  }) => {
+    if (!currentUser) return { success: false, error: 'Must be logged in to add family members.' };
+
+    const cleaned = cleanPhone(data.phoneNumber);
+    if (!cleaned || cleaned.length < 5) {
+      return { success: false, error: 'Please enter a valid phone number (at least 5 digits).' };
+    }
+    if (users.some(u => cleanPhone(u.phoneNumber) === cleaned)) {
+      return { success: false, error: 'An account with this phone number already exists.' };
+    }
+
+    const colors = ['#EC4899', '#8B5CF6', '#10B981', '#3B82F6', '#F59E0B', '#06B6D4', '#EF4444'];
+    const randomColor = data.avatarColor || colors[Math.floor(Math.random() * colors.length)];
+
+    const newMember: UserAccount = {
+      id: `usr-${Date.now()}`,
+      fullName: data.fullName.trim(),
+      phoneNumber: cleaned,
+      countryCode: data.countryCode || '+91',
+      password: data.password || 'password123',
+      role: data.role || 'user',
+      familyId: currentUser.familyId,
+      familyName: currentUser.familyName || `${currentUser.fullName}'s Family`,
+      relationship: data.relationship || 'Family Member',
+      department: 'Family Member',
+      avatarColor: randomColor,
+      createdAt: effectiveNow.toISOString(),
+      lastLoginAt: effectiveNow.toISOString(),
+    };
+
+    setUsers(prev => [...prev, newMember]);
+    addNotification({
+      title: '👨‍👩‍👧‍👦 Family Member Added',
+      message: `${newMember.fullName} (${newMember.relationship}) is now part of ${currentUser.familyName || 'your family'}. You can now assign tasks, deadlines, routines, and groceries to them!`,
+      type: 'system',
+      priority: 'normal',
+      userId: currentUser.id,
+    });
+
+    return { success: true, user: newMember };
+  }, [currentUser, users, effectiveNow, addNotification]);
+
+  const updateFamilyMember = useCallback((userId: string, updates: Partial<UserAccount>) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
+    if (currentUser?.id === userId) {
+      setCurrentUser(prev => prev ? { ...prev, ...updates } : null);
+    }
+    addNotification({
+      title: 'Family Member Updated',
+      message: 'Profile details updated successfully.',
+      type: 'system',
+      priority: 'low',
+      userId: currentUser?.id,
+    });
+  }, [currentUser?.id, addNotification]);
+
+  const removeFamilyMember = useCallback((userId: string) => {
+    if (userId === currentUser?.id) {
+      return { success: false, error: 'Cannot remove your own active account.' };
+    }
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    addNotification({
+      title: 'Family Member Removed',
+      message: 'User removed from family workspace.',
+      type: 'system',
+      priority: 'normal',
+      userId: currentUser?.id,
+    });
+    return { success: true };
+  }, [currentUser?.id, addNotification]);
+
+  const updateFamilyName = useCallback((name: string) => {
+    if (!currentUser || !name.trim()) return;
+    const newName = name.trim();
+    setUsers(prev => prev.map(u => u.familyId === currentUser.familyId ? { ...u, familyName: newName } : u));
+    setCurrentUser(prev => prev ? { ...prev, familyName: newName } : null);
+    addNotification({
+      title: 'Family Name Updated',
+      message: `Family name changed to "${newName}".`,
+      type: 'system',
+      priority: 'normal',
+      userId: currentUser.id,
+    });
+  }, [currentUser, addNotification]);
 
   const logout = useCallback(() => {
     setCurrentUser(null);
@@ -1028,6 +1321,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [users, addNotification]);
 
   const updateUserRole = useCallback((userId: string, newRole: UserRole) => {
+    if (currentUser?.role !== 'admin') {
+      addNotification({
+        title: 'Permission Denied 🔒',
+        message: 'Only admins can modify user roles.',
+        type: 'system',
+        priority: 'high',
+        userId: currentUser?.id,
+      });
+      return { success: false, error: 'Only admins can manage roles.' };
+    }
+
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
     if (currentUser?.id === userId) {
       setCurrentUser(prev => prev ? { ...prev, role: newRole } : null);
@@ -1039,22 +1343,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       priority: 'high',
       userId: currentUser?.id,
     });
-  }, [currentUser?.id, addNotification]);
+    return { success: true };
+  }, [currentUser, addNotification]);
 
   const switchUserDemo = useCallback((userId: string) => {
     const target = users.find(u => u.id === userId);
-    if (target) {
-      setCurrentUser(target);
-      setTeamScope('my');
+    if (!target) return;
+
+    // Regular users can only switch to members of their own family
+    if (currentUser && currentUser.role !== 'admin' && target.familyId !== currentUser.familyId) {
       addNotification({
-        title: `Switched User Profile`,
-        message: `Now viewing as ${target.fullName} (${target.role.toUpperCase()}). Data view refreshed.`,
+        title: 'Access Restricted 🔒',
+        message: `As a regular user, you can only switch to members of your own family (${currentUser.familyName || 'Family'}).`,
         type: 'system',
-        priority: 'normal',
-        userId: target.id,
+        priority: 'high',
+        userId: currentUser.id,
       });
+      return;
     }
-  }, [users, addNotification]);
+
+    setCurrentUser(target);
+    setTeamScope('my');
+    addNotification({
+      title: `Switched User Profile`,
+      message: `Now viewing as ${target.fullName} (${target.role.toUpperCase()} - ${target.familyName || 'Family'}). Data view refreshed.`,
+      type: 'system',
+      priority: 'normal',
+      userId: target.id,
+    });
+  }, [users, currentUser, addNotification]);
 
   return (
     <AppContext.Provider
@@ -1127,6 +1444,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         registerWithPhone,
         logout,
         resetPasswordWithPhone,
+        familyMembers,
+        allFamilies,
+        addFamilyMember,
+        updateFamilyMember,
+        removeFamilyMember,
+        updateFamilyName,
+        canAssignToUser,
         allTasks: tasks,
         allEvents: events,
         allDeadlines: deadlines,

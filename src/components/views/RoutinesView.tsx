@@ -15,6 +15,7 @@ import {
   Repeat,
   Pause,
   Play,
+  User,
 } from 'lucide-react';
 import { formatTime12Hour, formatDateYMD } from '../../utils/dateUtils';
 import { Routine, RoutineRepeatType } from '../../types';
@@ -35,6 +36,8 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
     toggleRoutineStep,
     deleteRoutine,
     updateRoutine,
+    users,
+    currentUser,
   } = useApp();
 
   const [activeFilter, setActiveFilter] = useState<'all' | 'daily' | 'weekly' | 'interval'>('all');
@@ -121,12 +124,22 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
                     <h3 className={`font-bold text-base ${isCompletedToday ? 'text-slate-300 line-through' : 'text-white'}`}>
                       {routine.name}
                     </h3>
-                    <div className="flex items-center space-x-2 text-xs text-slate-400 mt-0.5">
+                    <div className="flex items-center space-x-2 text-xs text-slate-400 mt-0.5 flex-wrap gap-1">
                       <span className="font-mono text-cyan-400 font-semibold">{formatTime12Hour(routine.time)}</span>
                       <span>•</span>
                       <span className="capitalize">{routine.repeatType}</span>
                       <span>•</span>
                       <span>{routine.durationMinutes} mins</span>
+                      {routine.assignedUserId && (() => {
+                        const assigneeUser = users.find(u => u.id === routine.assignedUserId);
+                        if (!assigneeUser) return null;
+                        const isSelf = assigneeUser.id === currentUser?.id;
+                        return (
+                          <span className="ml-1 px-1.5 py-0.2 rounded bg-rose-500/15 text-rose-300 border border-rose-500/25 text-[10px] font-medium">
+                            👤 {isSelf ? 'You' : assigneeUser.fullName}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
