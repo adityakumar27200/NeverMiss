@@ -181,7 +181,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-40 w-64 bg-slate-900 border-r border-slate-800 flex flex-col transition-transform duration-200 ease-in-out ${
+        className={`fixed lg:relative inset-y-0 left-0 z-40 lg:z-10 w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-full shrink-0 transition-transform duration-200 ease-in-out ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -196,7 +196,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Scrollable Navigation */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-800">
+        <div className="flex-1 overflow-y-auto min-h-0 px-3 py-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-800">
           <div className="px-3 pb-2 text-[10px] font-semibold text-slate-400 tracking-wider uppercase">
             Productivity Suite
           </div>

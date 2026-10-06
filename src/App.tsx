@@ -111,7 +111,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white overflow-hidden">
       {/* Active Alarm Banner (Fires for urgent deadlines & critical overdue work) */}
       <ActiveAlarmBanner />
 
@@ -126,7 +126,7 @@ const AppContent: React.FC = () => {
       />
 
       {/* Main Layout Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex min-h-0 overflow-hidden relative">
         {/* Sidebar */}
         <Sidebar
           activeTab={activeTab}
@@ -136,7 +136,7 @@ const AppContent: React.FC = () => {
         />
 
         {/* Content Pane */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
           {/* Mobile breadcrumb / title row with toggle */}
           <div className="lg:hidden flex items-center justify-between pb-4 mb-2 border-b border-slate-800">
             <button

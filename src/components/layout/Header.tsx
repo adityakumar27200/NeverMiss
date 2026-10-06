@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 text-slate-100 px-4 sm:px-6 py-3 sticky top-0 z-40 shadow-sm backdrop-blur-md bg-opacity-95">
+    <header className="bg-slate-900 border-b border-slate-800 text-slate-100 px-4 sm:px-6 py-3 shrink-0 z-30 shadow-sm backdrop-blur-md bg-opacity-95 relative">
       <div className="flex items-center justify-between gap-3">
         {/* Left: Branding & Current Time */}
         <div className="flex items-center space-x-3 sm:space-x-4">
@@ -88,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base tracking-tight text-white">Chronos</span>
+                <span className="font-bold text-base tracking-tight text-white">NeverMiss</span>
                 <span className="text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.2 rounded">
                   PRO
                 </span>

@@ -1293,7 +1293,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTeamScope('my');
     addNotification({
       title: 'Logged Out',
-      message: 'You have signed out of Chronos.',
+      message: 'You have signed out of NeverMiss.',
       type: 'system',
       priority: 'low',
     });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   X,
@@ -42,6 +42,13 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'task' | 'event' | 'deadline' | 'routine' | 'followup' | 'grocery' | 'contact'>(initialTab);
+
+  // Synchronize activeTab whenever the modal is opened or initialTab changes
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   const todayStr = formatDateYMD(effectiveNow);
   const timeStr = formatTimeHM(effectiveNow);
@@ -273,7 +280,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
         <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
           <div className="flex items-center space-x-2">
             <span className="font-bold text-white text-base">Create New Entry</span>
-            <span className="text-xs text-slate-400">Chronos Productivity Suite</span>
+            <span className="text-xs text-slate-400">NeverMiss Productivity Suite</span>
           </div>
           <button
             onClick={onClose}

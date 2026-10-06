@@ -129,7 +129,7 @@ export const LoginView: React.FC = () => {
             <Clock className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Chronos Productivity Suite
+            NeverMiss Productivity Suite
           </h1>
           <p className="text-xs sm:text-sm text-slate-400">
             Sign in with your phone number to access your tasks, routines, and deadlines.
