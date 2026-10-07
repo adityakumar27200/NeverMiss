@@ -332,15 +332,16 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
 
                     <button
                       onClick={() => setEditingTask(task)}
-                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
-                      title="Edit full task details"
+                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg text-xs font-semibold border border-slate-700 transition flex items-center space-x-1 cursor-pointer"
+                      title="Edit task details"
                     >
-                      <Edit3 className="w-4 h-4" />
+                      <Edit3 className="w-3.5 h-3.5 text-indigo-400" />
+                      <span>Edit</span>
                     </button>
 
                     <button
                       onClick={() => deleteTask(task.id)}
-                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition"
+                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
                       title="Delete task"
                     >
                       <Trash2 className="w-4 h-4" />

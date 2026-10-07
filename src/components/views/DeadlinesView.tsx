@@ -11,20 +11,54 @@ import {
   Bell,
   CheckCircle2,
   User,
+  Edit2,
+  X,
+  Check,
 } from 'lucide-react';
 import { parseDateTime, getRelativeTimeText, formatTime12Hour, formatHumanDate } from '../../utils/dateUtils';
 import { CustomScheduleModal, ScheduleItemTarget } from '../common/CustomScheduleModal';
+import { Deadline } from '../../types';
 
 interface DeadlinesViewProps {
   onOpenQuickCreate: (tab?: any) => void;
 }
 
 export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate }) => {
-  const { deadlines, categories, effectiveNow, markDeadlineMet, deleteDeadline, users, currentUser } = useApp();
+  const { deadlines, categories, effectiveNow, markDeadlineMet, deleteDeadline, updateDeadline, users, currentUser } = useApp();
   const [scheduleTarget, setScheduleTarget] = useState<ScheduleItemTarget | null>(null);
+
+  // In-card editing state
+  const [editingDeadlineId, setEditingDeadlineId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editPriority, setEditPriority] = useState<'critical' | 'high'>('critical');
+  const [editAssignedUserId, setEditAssignedUserId] = useState('');
 
   const activeDeadlines = deadlines.filter(d => d.status === 'active');
   const metDeadlines = deadlines.filter(d => d.status === 'met');
+
+  const handleStartEdit = (dl: Deadline) => {
+    setEditingDeadlineId(dl.id);
+    setEditTitle(dl.title);
+    setEditNotes(dl.notes || '');
+    setEditPriority(dl.priority);
+    setEditAssignedUserId(dl.assignedUserId || '');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingDeadlineId(null);
+  };
+
+  const handleSaveEdit = (dlId: string) => {
+    if (!editTitle.trim()) return;
+    updateDeadline(dlId, {
+      title: editTitle.trim(),
+      notes: editNotes.trim() || undefined,
+      priority: editPriority,
+      assignedUserId: editAssignedUserId || undefined,
+    });
+    setEditingDeadlineId(null);
+  };
 
   const triggersList = [
     { id: '7d', label: '7 days before' },
@@ -75,6 +109,101 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
             const targetTime = parseDateTime(dl.deadlineDate, dl.deadlineTime);
             const rel = getRelativeTimeText(targetTime, effectiveNow);
             const isOverdue = rel.isOverdue;
+            const isEditing = editingDeadlineId === dl.id;
+
+            if (isEditing) {
+              return (
+                <div
+                  key={dl.id}
+                  className="bg-slate-900 border border-amber-500/70 rounded-2xl p-5 shadow-xl space-y-3 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-amber-400 flex items-center space-x-1.5 text-sm">
+                      <Edit2 className="w-4 h-4" />
+                      <span>Edit Deadline Details</span>
+                    </span>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="text-slate-400 hover:text-white p-1"
+                      title="Cancel"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5 font-medium">Milestone Title</label>
+                      <input
+                        type="text"
+                        value={editTitle}
+                        onChange={e => setEditTitle(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] text-slate-400 block mb-0.5 font-medium">Severity / Priority</label>
+                        <select
+                          value={editPriority}
+                          onChange={e => setEditPriority(e.target.value as 'critical' | 'high')}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                        >
+                          <option value="critical">🔴 Critical (Zero tolerance)</option>
+                          <option value="high">🟠 High</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] text-slate-400 block mb-0.5 font-medium">Assigned Family Member</label>
+                        <select
+                          value={editAssignedUserId}
+                          onChange={e => setEditAssignedUserId(e.target.value)}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                        >
+                          <option value="">Unassigned</option>
+                          {users.map(u => (
+                            <option key={u.id} value={u.id}>
+                              {u.fullName} {u.relationship ? `(${u.relationship})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5 font-medium">Execution Notes / Consequences</label>
+                      <textarea
+                        rows={2}
+                        value={editNotes}
+                        onChange={e => setEditNotes(e.target.value)}
+                        placeholder="Submission portal link, passport physical location, fee penalties..."
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-800">
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="px-3.5 py-1.5 text-xs text-slate-400 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveEdit(dl.id)}
+                      className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition shadow-md"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Save Changes in Card</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            }
 
             return (
               <div
@@ -173,6 +302,14 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
 
                   {/* Actions */}
                   <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0">
+                    <button
+                      onClick={() => handleStartEdit(dl)}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition cursor-pointer flex items-center space-x-1.5"
+                      title="Edit deadline details directly in card"
+                    >
+                      <Edit2 className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Edit</span>
+                    </button>
                     <button
                       onClick={() => setScheduleTarget({
                         id: dl.id,

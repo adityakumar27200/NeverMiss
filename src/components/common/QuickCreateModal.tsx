@@ -17,12 +17,14 @@ interface QuickCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialTab?: 'task' | 'event' | 'deadline' | 'routine' | 'followup' | 'grocery' | 'contact';
+  lockTab?: boolean; // When true, only open that specific item creation and hide the other tabs
 }
 
 export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   isOpen,
   onClose,
   initialTab = 'task',
+  lockTab = false,
 }) => {
   const {
     addTask,
@@ -279,7 +281,17 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
         {/* Header */}
         <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-white text-base">Create New Entry</span>
+            <span className="font-bold text-white text-base">
+              {lockTab ? (
+                activeTab === 'task' ? 'Create Task' :
+                activeTab === 'deadline' ? 'Create Deadline' :
+                activeTab === 'routine' ? 'Create Routine' :
+                activeTab === 'event' ? 'Create Calendar Event' :
+                activeTab === 'followup' ? 'Create Follow-up' :
+                activeTab === 'grocery' ? 'Add Grocery Item' :
+                activeTab === 'contact' ? 'Add Contact' : 'Create New Entry'
+              ) : 'Create New Entry'}
+            </span>
             <span className="text-xs text-slate-400">NeverMiss Productivity Suite</span>
           </div>
           <button
@@ -290,79 +302,81 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
           </button>
         </div>
 
-        {/* Tab Selection */}
-        <div className="flex border-b border-slate-800 bg-slate-900/90 overflow-x-auto px-4 py-2 gap-1.5 scrollbar-thin">
-          <button
-            type="button"
-            onClick={() => setActiveTab('task')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
-              activeTab === 'task' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-          >
-            <CheckSquare className="w-3.5 h-3.5" />
-            <span>Task</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('deadline')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
-              activeTab === 'deadline' ? 'bg-amber-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-          >
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span>Deadline</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('routine')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
-              activeTab === 'routine' ? 'bg-rose-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-          >
-            <Flame className="w-3.5 h-3.5" />
-            <span>Routine</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('event')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
-              activeTab === 'event' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-          >
-            <CalendarDays className="w-3.5 h-3.5" />
-            <span>Event</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('followup')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
-              activeTab === 'followup' ? 'bg-cyan-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-          >
-            <PhoneCall className="w-3.5 h-3.5" />
-            <span>Follow-up</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('grocery')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
-              activeTab === 'grocery' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-          >
-            <ShoppingCart className="w-3.5 h-3.5" />
-            <span>Grocery</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('contact')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
-              activeTab === 'contact' ? 'bg-purple-600 text-white' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>Contact</span>
-          </button>
-        </div>
+        {/* Tab Selection (Hidden when lockTab is active so clicking 'Add Task' or 'Add Routine' only opens that exact form) */}
+        {!lockTab && (
+          <div className="flex border-b border-slate-800 bg-slate-900/90 overflow-x-auto px-4 py-2 gap-1.5 scrollbar-thin">
+            <button
+              type="button"
+              onClick={() => setActiveTab('task')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
+                activeTab === 'task' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <CheckSquare className="w-3.5 h-3.5" />
+              <span>Task</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('deadline')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
+                activeTab === 'deadline' ? 'bg-amber-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>Deadline</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('routine')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
+                activeTab === 'routine' ? 'bg-rose-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <Flame className="w-3.5 h-3.5" />
+              <span>Routine</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('event')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
+                activeTab === 'event' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <CalendarDays className="w-3.5 h-3.5" />
+              <span>Event</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('followup')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
+                activeTab === 'followup' ? 'bg-cyan-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <PhoneCall className="w-3.5 h-3.5" />
+              <span>Follow-up</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('grocery')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
+                activeTab === 'grocery' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              <span>Grocery</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('contact')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
+                activeTab === 'contact' ? 'bg-purple-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>Contact</span>
+            </button>
+          </div>
+        )}
 
         {/* Form Body */}
         <div className="p-5 max-h-[72vh] overflow-y-auto">

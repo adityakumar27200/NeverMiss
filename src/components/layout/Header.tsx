@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Bell,
@@ -56,6 +56,27 @@ export const Header: React.FC<HeaderProps> = ({
 
   const [showNotifPopover, setShowNotifPopover] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const notifRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Automatically close notification center and user menu when clicking anywhere else
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (notifRef.current && !notifRef.current.contains(target)) {
+        setShowNotifPopover(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -165,7 +186,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Notification Center Popover */}
-          <div className="relative">
+          <div className="relative" ref={notifRef}>
             <button
               onClick={() => setShowNotifPopover(!showNotifPopover)}
               className="p-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/70 transition relative cursor-pointer"
@@ -263,7 +284,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* User Account & Phone Indicator */}
           {currentUser && (
-            <div className="relative pl-1 sm:pl-2 border-l border-slate-800">
+            <div className="relative pl-1 sm:pl-2 border-l border-slate-800" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center space-x-2 p-1 sm:px-2.5 sm:py-1 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 transition cursor-pointer"

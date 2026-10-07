@@ -44,6 +44,7 @@ const AppContent: React.FC = () => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isQuickCreateOpen, setIsQuickCreateOpen] = useState(false);
   const [quickCreateInitialTab, setQuickCreateInitialTab] = useState<any>('task');
+  const [quickCreateLockTab, setQuickCreateLockTab] = useState<boolean>(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
@@ -52,8 +53,9 @@ const AppContent: React.FC = () => {
     return <LoginView />;
   }
 
-  const handleOpenQuickCreate = (initialTab = 'task') => {
+  const handleOpenQuickCreate = (initialTab = 'task', lock = true) => {
     setQuickCreateInitialTab(initialTab);
+    setQuickCreateLockTab(lock);
     setIsQuickCreateOpen(true);
   };
 
@@ -210,6 +212,7 @@ const AppContent: React.FC = () => {
         isOpen={isQuickCreateOpen}
         onClose={() => setIsQuickCreateOpen(false)}
         initialTab={quickCreateInitialTab}
+        lockTab={quickCreateLockTab}
       />
 
       {/* Universal Instant Search Modal */}
