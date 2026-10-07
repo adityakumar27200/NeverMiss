@@ -10,6 +10,9 @@ import {
   Trash2,
   ArrowRight,
   Sparkles,
+  Edit2,
+  Check,
+  X,
 } from 'lucide-react';
 import { formatDateYMD, formatHumanDate, addDays } from '../../utils/dateUtils';
 import { FollowUp } from '../../types';
@@ -20,13 +23,49 @@ interface FollowUpsViewProps {
 }
 
 export const FollowUpsView: React.FC<FollowUpsViewProps> = ({ onOpenQuickCreate }) => {
-  const { followUps, effectiveNow, completeFollowUp, deleteFollowUp, users, currentUser } = useApp();
+  const { followUps, effectiveNow, completeFollowUp, deleteFollowUp, updateFollowUp, users, currentUser } = useApp();
 
   const [activeTab, setActiveTab] = useState<'pending' | 'completed'>('pending');
   const [selectedFollowUp, setSelectedFollowUp] = useState<FollowUp | null>(null);
   const [scheduleNextDays, setScheduleNextDays] = useState<number>(3);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduleTarget, setScheduleTarget] = useState<ScheduleItemTarget | null>(null);
+
+  // In-card editing state
+  const [editingCardId, setEditingCardId] = useState<string | null>(null);
+  const [editContactName, setEditContactName] = useState('');
+  const [editSubject, setEditSubject] = useState('');
+  const [editNextDate, setEditNextDate] = useState('');
+  const [editNextTime, setEditNextTime] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editAssignedUserId, setEditAssignedUserId] = useState('');
+
+  const handleStartEdit = (fu: FollowUp) => {
+    setEditingCardId(fu.id);
+    setEditContactName(fu.contactName);
+    setEditSubject(fu.subject);
+    setEditNextDate(fu.nextFollowUpDate);
+    setEditNextTime(fu.nextFollowUpTime || '10:00');
+    setEditNotes(fu.notes || '');
+    setEditAssignedUserId(fu.assignedUserId || '');
+  };
+
+  const handleSaveEdit = (fuId: string) => {
+    if (!editContactName.trim()) return;
+    updateFollowUp(fuId, {
+      contactName: editContactName.trim(),
+      subject: editSubject.trim() || undefined,
+      nextFollowUpDate: editNextDate,
+      nextFollowUpTime: editNextTime,
+      notes: editNotes.trim() || undefined,
+      assignedUserId: editAssignedUserId || undefined,
+    });
+    setEditingCardId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCardId(null);
+  };
 
   const todayStr = formatDateYMD(effectiveNow);
 
@@ -96,18 +135,145 @@ export const FollowUpsView: React.FC<FollowUpsViewProps> = ({ onOpenQuickCreate 
       <div className="space-y-3">
         {(activeTab === 'pending' ? pendingList : completedList).map(fu => {
           const isDueOrPast = fu.nextFollowUpDate <= todayStr;
+          const isEditing = editingCardId === fu.id;
+
+          if (isEditing) {
+            return (
+              <div
+                key={fu.id}
+                className="bg-slate-900 border-2 border-cyan-500/70 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 transition"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <span className="font-bold text-sm text-cyan-400 flex items-center space-x-1.5">
+                    <Edit2 className="w-4 h-4" />
+                    <span>Edit Follow-up in Card</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+                    title="Cancel edit"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Contact Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={editContactName}
+                        onChange={e => setEditContactName(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                        placeholder="Person or organization..."
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Topic / Subject *
+                      </label>
+                      <input
+                        type="text"
+                        value={editSubject}
+                        onChange={e => setEditSubject(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                        placeholder="e.g. Contract review, medical checkup..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Next Date
+                      </label>
+                      <input
+                        type="date"
+                        value={editNextDate}
+                        onChange={e => setEditNextDate(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Next Time
+                      </label>
+                      <input
+                        type="time"
+                        value={editNextTime}
+                        onChange={e => setEditNextTime(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Assigned Member
+                      </label>
+                      <select
+                        value={editAssignedUserId}
+                        onChange={e => setEditAssignedUserId(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                      >
+                        <option value="">Unassigned</option>
+                        {users.map(u => (
+                          <option key={u.id} value={u.id}>
+                            {u.fullName} {u.relationship ? `(${u.relationship})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                      Notes & Context
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={editNotes}
+                      onChange={e => setEditNotes(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                      placeholder="Follow-up history or notes..."
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end space-x-2 pt-2.5 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="px-3 py-1.5 text-xs text-slate-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSaveEdit(fu.id)}
+                    className="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition shadow-md shadow-cyan-600/20"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Save in Card</span>
+                  </button>
+                </div>
+              </div>
+            );
+          }
 
           return (
             <div
               key={fu.id}
-              className={`bg-slate-900 border rounded-2xl p-5 shadow-sm transition hover:border-slate-700 ${
+              className={`bg-slate-900 border rounded-2xl p-4 sm:p-5 shadow-sm transition hover:border-slate-700 ${
                 isDueOrPast && fu.status === 'pending'
                   ? 'border-cyan-500/50 bg-cyan-950/10'
                   : 'border-slate-800'
               }`}
             >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div className="space-y-2 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+                <div className="space-y-1.5 min-w-0 flex-1">
                   <div className="flex items-center space-x-2 flex-wrap gap-1">
                     <span className="font-bold text-base text-white">{fu.contactName}</span>
                     <span className="text-slate-500 text-sm">—</span>
@@ -120,16 +286,16 @@ export const FollowUpsView: React.FC<FollowUpsViewProps> = ({ onOpenQuickCreate 
                   </div>
 
                   {fu.notes && (
-                    <p className="text-xs text-slate-300 leading-relaxed bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
+                    <p className="text-xs text-slate-300 leading-relaxed bg-slate-800/60 p-2.5 sm:p-3 rounded-xl border border-slate-700/60 break-words">
                       {fu.notes}
                     </p>
                   )}
 
-                  <div className="flex items-center space-x-4 text-xs text-slate-400 flex-wrap gap-y-1">
+                  <div className="flex items-center space-x-3 text-xs text-slate-400 flex-wrap gap-y-1 pt-1">
                     <span>Last Contact: {formatHumanDate(fu.lastContactDate)}</span>
                     <span>•</span>
                     <span className="text-cyan-400 font-medium">
-                      Next Follow-up: {formatHumanDate(fu.nextFollowUpDate)} {fu.nextFollowUpTime}
+                      Next: {formatHumanDate(fu.nextFollowUpDate)} {fu.nextFollowUpTime}
                     </span>
                     {fu.assignedUserId && (() => {
                       const assigneeUser = users.find(u => u.id === fu.assignedUserId);
@@ -144,8 +310,17 @@ export const FollowUpsView: React.FC<FollowUpsViewProps> = ({ onOpenQuickCreate 
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center space-x-2 shrink-0 flex-wrap gap-y-1">
+                {/* Actions Toolbar */}
+                <div className="pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 flex items-center justify-between sm:justify-end gap-1.5 flex-wrap shrink-0">
+                  <button
+                    onClick={() => handleStartEdit(fu)}
+                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-semibold border border-slate-700 transition flex items-center space-x-1 cursor-pointer"
+                    title="Edit follow-up in card"
+                  >
+                    <Edit2 className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Edit</span>
+                  </button>
+
                   {fu.status === 'pending' ? (
                     <>
                       <button
@@ -167,11 +342,11 @@ export const FollowUpsView: React.FC<FollowUpsViewProps> = ({ onOpenQuickCreate 
                         className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-cyan-600/20 transition flex items-center space-x-1.5 cursor-pointer"
                       >
                         <CheckCircle className="w-3.5 h-3.5" />
-                        <span>Complete & Next</span>
+                        <span>Done & Next</span>
                       </button>
                     </>
                   ) : (
-                    <span className="text-emerald-400 font-semibold text-xs flex items-center space-x-1">
+                    <span className="text-emerald-400 font-semibold text-xs flex items-center space-x-1 px-2">
                       <CheckCircle className="w-4 h-4" />
                       <span>Completed</span>
                     </span>
@@ -179,7 +354,7 @@ export const FollowUpsView: React.FC<FollowUpsViewProps> = ({ onOpenQuickCreate 
 
                   <button
                     onClick={() => deleteFollowUp(fu.id)}
-                    className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-slate-800 transition"
+                    className="p-1.5 text-slate-500 hover:text-red-400 rounded-xl hover:bg-slate-800 transition cursor-pointer"
                     title="Delete follow-up"
                   >
                     <Trash2 className="w-4 h-4" />

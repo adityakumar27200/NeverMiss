@@ -16,6 +16,9 @@ import {
   Pause,
   Play,
   User,
+  Edit2,
+  Check,
+  X,
 } from 'lucide-react';
 import { formatTime12Hour, formatDateYMD } from '../../utils/dateUtils';
 import { Routine, RoutineRepeatType } from '../../types';
@@ -43,6 +46,45 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
   const [activeFilter, setActiveFilter] = useState<'all' | 'daily' | 'weekly' | 'interval'>('all');
   const [scheduleTarget, setScheduleTarget] = useState<ScheduleItemTarget | null>(null);
   const todayStr = formatDateYMD(effectiveNow);
+
+  // In-card editing state
+  const [editingCardId, setEditingCardId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editTime, setEditTime] = useState('');
+  const [editDuration, setEditDuration] = useState(15);
+  const [editRepeatType, setEditRepeatType] = useState<RoutineRepeatType>('daily');
+  const [editDescription, setEditDescription] = useState('');
+  const [editCategoryId, setEditCategoryId] = useState('');
+  const [editAssignedUserId, setEditAssignedUserId] = useState('');
+
+  const handleStartEdit = (routine: Routine) => {
+    setEditingCardId(routine.id);
+    setEditName(routine.name);
+    setEditTime(routine.time);
+    setEditDuration(routine.durationMinutes || 15);
+    setEditRepeatType(routine.repeatType);
+    setEditDescription(routine.description || '');
+    setEditCategoryId(routine.categoryId);
+    setEditAssignedUserId(routine.assignedUserId || '');
+  };
+
+  const handleSaveEdit = (routineId: string) => {
+    if (!editName.trim()) return;
+    updateRoutine(routineId, {
+      name: editName.trim(),
+      time: editTime,
+      durationMinutes: Number(editDuration) || 15,
+      repeatType: editRepeatType,
+      description: editDescription.trim() || undefined,
+      categoryId: editCategoryId,
+      assignedUserId: editAssignedUserId || undefined,
+    });
+    setEditingCardId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCardId(null);
+  };
 
   const filteredRoutines = routines.filter(r => {
     if (activeFilter === 'all') return true;
@@ -99,17 +141,165 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
           const isCompletedToday = routine.completedDates.includes(todayStr);
           const isSkippedToday = routine.skippedDates.includes(todayStr);
           const cat = categories.find(c => c.id === routine.categoryId);
+          const isEditing = editingCardId === routine.id;
+
+          if (isEditing) {
+            return (
+              <div
+                key={routine.id}
+                className="bg-slate-900 border-2 border-rose-500/70 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 transition"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <span className="font-bold text-sm text-rose-400 flex items-center space-x-1.5">
+                    <Edit2 className="w-4 h-4" />
+                    <span>Edit Routine in Card</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+                    title="Cancel edit"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                      Routine Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={e => setEditName(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500"
+                      placeholder="e.g. Morning Medication, Exercise..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Scheduled Time
+                      </label>
+                      <input
+                        type="time"
+                        value={editTime}
+                        onChange={e => setEditTime(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Duration (mins)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={editDuration}
+                        onChange={e => setEditDuration(Number(e.target.value) || 15)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Frequency
+                      </label>
+                      <select
+                        value={editRepeatType}
+                        onChange={e => setEditRepeatType(e.target.value as RoutineRepeatType)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                      >
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="specific_days">Specific Days</option>
+                        <option value="interval">Interval (Every X Days)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Category
+                      </label>
+                      <select
+                        value={editCategoryId}
+                        onChange={e => setEditCategoryId(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                      >
+                        <option value="">No Category</option>
+                        {categories.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Assigned Member
+                      </label>
+                      <select
+                        value={editAssignedUserId}
+                        onChange={e => setEditAssignedUserId(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                      >
+                        <option value="">Unassigned</option>
+                        {users.map(u => (
+                          <option key={u.id} value={u.id}>
+                            {u.fullName} {u.relationship ? `(${u.relationship})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                      Description / Instructions
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={editDescription}
+                      onChange={e => setEditDescription(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500"
+                      placeholder="Routine details or notes..."
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end space-x-2 pt-2.5 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="px-3 py-1.5 text-xs text-slate-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSaveEdit(routine.id)}
+                    className="px-4 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition shadow-md shadow-rose-600/20"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Save in Card</span>
+                  </button>
+                </div>
+              </div>
+            );
+          }
 
           return (
             <div
               key={routine.id}
-              className={`bg-slate-900 border rounded-2xl p-5 shadow-sm space-y-4 transition hover:border-slate-700 ${
+              className={`bg-slate-900 border rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4 transition hover:border-slate-700 ${
                 isCompletedToday ? 'border-emerald-500/40 bg-emerald-950/10' : 'border-slate-800'
               }`}
             >
               {/* Top row */}
               <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start space-x-3 min-w-0">
+                <div className="flex items-start space-x-3 min-w-0 flex-1">
                   <button
                     onClick={() => completeRoutineToday(routine.id)}
                     className={`mt-1 transition cursor-pointer shrink-0 ${
@@ -120,8 +310,8 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
                     {isCompletedToday ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
                   </button>
 
-                  <div className="min-w-0">
-                    <h3 className={`font-bold text-base ${isCompletedToday ? 'text-slate-300 line-through' : 'text-white'}`}>
+                  <div className="min-w-0 flex-1">
+                    <h3 className={`font-bold text-base break-words ${isCompletedToday ? 'text-slate-300 line-through' : 'text-white'}`}>
                       {routine.name}
                     </h3>
                     <div className="flex items-center space-x-2 text-xs text-slate-400 mt-0.5 flex-wrap gap-1">
@@ -146,6 +336,13 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
 
                 <div className="flex items-center space-x-1 shrink-0">
                   <button
+                    onClick={() => handleStartEdit(routine)}
+                    className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                    title="Edit routine in card"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
                     onClick={() => updateRoutine(routine.id, { active: !routine.active })}
                     className={`p-1.5 rounded-lg text-xs transition ${
                       routine.active ? 'text-slate-400 hover:text-amber-400' : 'text-amber-400 hover:text-emerald-400'
@@ -156,7 +353,7 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
                   </button>
                   <button
                     onClick={() => deleteRoutine(routine.id)}
-                    className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg transition"
+                    className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg transition cursor-pointer"
                     title="Delete routine"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -165,7 +362,7 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
               </div>
 
               {routine.description && (
-                <p className="text-xs text-slate-300 leading-relaxed">{routine.description}</p>
+                <p className="text-xs text-slate-300 leading-relaxed break-words">{routine.description}</p>
               )}
 
               {/* Sub-steps if grouped (e.g. morning routine) */}
@@ -244,6 +441,14 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
               <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs flex-wrap gap-2">
                 <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
                   <button
+                    onClick={() => handleStartEdit(routine)}
+                    className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-700 transition flex items-center space-x-1 cursor-pointer"
+                    title="Edit in Card"
+                  >
+                    <Edit2 className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Edit</span>
+                  </button>
+                  <button
                     onClick={() => setScheduleTarget({
                       id: routine.id,
                       type: 'routine',
@@ -261,13 +466,13 @@ export const RoutinesView: React.FC<RoutinesViewProps> = ({ onOpenQuickCreate })
                     <>
                       <button
                         onClick={() => snoozeRoutine(routine.id, 15)}
-                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition"
+                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition cursor-pointer"
                       >
                         Snooze 15m
                       </button>
                       <button
                         onClick={() => skipRoutineToday(routine.id)}
-                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg text-xs font-medium border border-slate-700 transition"
+                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg text-xs font-medium border border-slate-700 transition cursor-pointer"
                       >
                         Skip Today
                       </button>

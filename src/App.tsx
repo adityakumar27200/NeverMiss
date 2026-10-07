@@ -119,6 +119,7 @@ const AppContent: React.FC = () => {
 
       {/* Header */}
       <Header
+        onOpenMobileNav={() => setIsMobileNavOpen(true)}
         onOpenQuickCreate={() => handleOpenQuickCreate('task')}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenSummary={() => setIsSummaryOpen(true)}
@@ -138,21 +139,7 @@ const AppContent: React.FC = () => {
         />
 
         {/* Content Pane */}
-        <main className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-          {/* Mobile breadcrumb / title row with toggle */}
-          <div className="lg:hidden flex items-center justify-between pb-4 mb-2 border-b border-slate-800">
-            <button
-              onClick={() => setIsMobileNavOpen(true)}
-              className="flex items-center space-x-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg"
-            >
-              <Menu className="w-4 h-4 text-indigo-400" />
-              <span>Menu</span>
-            </button>
-            <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
-              {activeTab.replace('_', ' ')}
-            </span>
-          </div>
-
+        <main className="flex-1 overflow-y-auto min-h-0 px-3 py-3 sm:p-6 lg:p-8 pb-24 sm:pb-8 max-w-7xl mx-auto w-full">
           {/* Team Scope & Role Awareness Bar */}
           {activeTab !== 'android_plan' && activeTab !== 'family' && <TeamScopeBar />}
 

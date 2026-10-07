@@ -181,7 +181,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:relative inset-y-0 left-0 z-40 lg:z-10 w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-full shrink-0 transition-transform duration-200 ease-in-out ${
+        className={`fixed lg:relative inset-y-0 left-0 z-50 lg:z-10 w-72 sm:w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-full shrink-0 transition-transform duration-200 ease-in-out shadow-2xl lg:shadow-none ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >

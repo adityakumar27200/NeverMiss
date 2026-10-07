@@ -15,7 +15,9 @@ import {
   Paperclip,
   MoreVertical,
   Check,
+  Edit2,
   Edit3,
+  X,
 } from 'lucide-react';
 import { Task, Priority, TaskStatus } from '../../types';
 import { formatTime12Hour, formatHumanDate, parseDateTime, getRelativeTimeText, addDays, formatDateYMD } from '../../utils/dateUtils';
@@ -50,7 +52,46 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [scheduleTarget, setScheduleTarget] = useState<ScheduleItemTarget | null>(null);
 
+  // In-card editing state
+  const [editingCardId, setEditingCardId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editDueDate, setEditDueDate] = useState('');
+  const [editDueTime, setEditDueTime] = useState('');
+  const [editPriority, setEditPriority] = useState<Priority>('medium');
+  const [editCategoryId, setEditCategoryId] = useState('');
+  const [editAssignedUserId, setEditAssignedUserId] = useState('');
+
   const todayStr = formatDateYMD(effectiveNow);
+
+  const handleStartEdit = (task: Task) => {
+    setEditingCardId(task.id);
+    setEditTitle(task.title);
+    setEditDescription(task.description || '');
+    setEditDueDate(task.dueDate);
+    setEditDueTime(task.dueTime);
+    setEditPriority(task.priority);
+    setEditCategoryId(task.categoryId);
+    setEditAssignedUserId(task.assignedUserId || '');
+  };
+
+  const handleSaveEdit = (taskId: string) => {
+    if (!editTitle.trim()) return;
+    updateTask(taskId, {
+      title: editTitle.trim(),
+      description: editDescription.trim() || undefined,
+      dueDate: editDueDate,
+      dueTime: editDueTime,
+      priority: editPriority,
+      categoryId: editCategoryId,
+      assignedUserId: editAssignedUserId || undefined,
+    });
+    setEditingCardId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCardId(null);
+  };
 
   // Filter tasks
   const filteredTasks = tasks.filter(task => {
@@ -188,6 +229,167 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
             const relTime = getRelativeTimeText(targetTime, effectiveNow);
             const isCompleted = task.status === 'completed';
 
+            const isEditingThisCard = editingCardId === task.id;
+
+            if (isEditingThisCard) {
+              return (
+                <div
+                  key={task.id}
+                  className="bg-slate-900 border-2 border-indigo-500/70 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5 transition"
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <span className="font-bold text-sm text-indigo-400 flex items-center space-x-1.5">
+                      <Edit2 className="w-4 h-4" />
+                      <span>Edit Task in Card</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+                      title="Cancel edit"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Task Title *
+                      </label>
+                      <input
+                        type="text"
+                        value={editTitle}
+                        onChange={e => setEditTitle(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                        placeholder="Task title..."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                        Description / Notes
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={editDescription}
+                        onChange={e => setEditDescription(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                        placeholder="Add details, instructions or links..."
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      <div>
+                        <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                          Due Date
+                        </label>
+                        <input
+                          type="date"
+                          value={editDueDate}
+                          onChange={e => setEditDueDate(e.target.value)}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                          Due Time
+                        </label>
+                        <input
+                          type="time"
+                          value={editDueTime}
+                          onChange={e => setEditDueTime(e.target.value)}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                          Priority
+                        </label>
+                        <select
+                          value={editPriority}
+                          onChange={e => setEditPriority(e.target.value as Priority)}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                        >
+                          <option value="critical">🔴 Critical</option>
+                          <option value="high">🟠 High</option>
+                          <option value="medium">🔵 Medium</option>
+                          <option value="low">🟢 Low</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                          Category
+                        </label>
+                        <select
+                          value={editCategoryId}
+                          onChange={e => setEditCategoryId(e.target.value)}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                        >
+                          <option value="">No Category</option>
+                          {categories.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                          Assigned Family Member
+                        </label>
+                        <select
+                          value={editAssignedUserId}
+                          onChange={e => setEditAssignedUserId(e.target.value)}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                        >
+                          <option value="">Unassigned</option>
+                          {users.map(u => (
+                            <option key={u.id} value={u.id}>
+                              {u.fullName} {u.relationship ? `(${u.relationship})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2.5 border-t border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingTask(task);
+                        setEditingCardId(null);
+                      }}
+                      className="text-xs text-slate-400 hover:text-indigo-300 font-medium transition cursor-pointer"
+                    >
+                      More Options (Reminders / Recurrence)
+                    </button>
+
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={handleCancelEdit}
+                        className="px-3 py-1.5 text-xs text-slate-400 hover:text-white"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveEdit(task.id)}
+                        className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition shadow-md shadow-indigo-600/20"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Save in Card</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div
                 key={task.id}
@@ -195,9 +397,9 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
                   task.status === 'overdue' ? 'border-red-500/40 bg-red-950/10' : 'border-slate-800'
                 }`}
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   {/* Left: Checkbox & Info */}
-                  <div className="flex items-start space-x-3 min-w-0">
+                  <div className="flex items-start space-x-3 min-w-0 flex-1">
                     <button
                       onClick={() => completeTask(task.id)}
                       className={`mt-1 transition cursor-pointer shrink-0 ${
@@ -208,9 +410,9 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
                       {isCompleted ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
                     </button>
 
-                    <div className="min-w-0 space-y-1">
+                    <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center space-x-2 flex-wrap gap-1">
-                        <h3 className={`font-semibold text-sm sm:text-base ${isCompleted ? 'line-through text-slate-400' : 'text-white'}`}>
+                        <h3 className={`font-semibold text-sm sm:text-base break-words ${isCompleted ? 'line-through text-slate-400' : 'text-white'}`}>
                           {task.title}
                         </h3>
                         {getPriorityBadge(task.priority)}
@@ -224,11 +426,11 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
                       </div>
 
                       {task.description && (
-                        <p className="text-xs text-slate-300 leading-relaxed">{task.description}</p>
+                        <p className="text-xs text-slate-300 leading-relaxed break-words">{task.description}</p>
                       )}
 
                       {/* Meta badges */}
-                      <div className="flex items-center space-x-3 text-[11px] text-slate-400 flex-wrap gap-y-1 pt-1">
+                      <div className="flex items-center space-x-2.5 sm:space-x-3 text-[11px] text-slate-400 flex-wrap gap-y-1 pt-1">
                         <span className="flex items-center space-x-1 font-mono text-cyan-400">
                           <Clock className="w-3.5 h-3.5" />
                           <span>{task.dueDate} {formatTime12Hour(task.dueTime)}</span>
@@ -282,7 +484,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
 
                       {/* Tags */}
                       {task.tags && task.tags.length > 0 && (
-                        <div className="flex items-center space-x-1.5 pt-1">
+                        <div className="flex items-center space-x-1.5 pt-1 flex-wrap">
                           {task.tags.map(tag => (
                             <span key={tag} className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700/60">
                               #{tag}
@@ -293,8 +495,8 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
                     </div>
                   </div>
 
-                  {/* Right Actions */}
-                  <div className="flex items-center space-x-1.5 shrink-0 flex-wrap gap-y-1">
+                  {/* Actions Toolbar: Touch-friendly & neatly aligned */}
+                  <div className="pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 flex items-center justify-between sm:justify-end gap-1.5 flex-wrap shrink-0">
                     {!isCompleted && (
                       <>
                         <button
@@ -307,7 +509,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
                             currentPriority: task.priority,
                             currentReminders: task.reminderRules,
                           })}
-                          className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-xs font-semibold border border-indigo-500/30 transition flex items-center space-x-1 cursor-pointer"
+                          className="px-2.5 py-1.5 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-xl text-xs font-semibold border border-indigo-500/30 transition flex items-center space-x-1 cursor-pointer"
                           title="Custom Date & Time"
                         >
                           <Calendar className="w-3.5 h-3.5" />
@@ -315,14 +517,14 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
                         </button>
                         <button
                           onClick={() => snoozeTask(task.id, 30)}
-                          className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition"
+                          className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium border border-slate-700 transition cursor-pointer"
                           title="Snooze 30 minutes"
                         >
                           Snooze
                         </button>
                         <button
                           onClick={() => rescheduleTask(task.id, addDays(todayStr, 1))}
-                          className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition"
+                          className="hidden sm:inline-flex px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium border border-slate-700 transition cursor-pointer"
                           title="Reschedule to Tomorrow"
                         >
                           Tomorrow
@@ -331,17 +533,17 @@ export const TasksView: React.FC<TasksViewProps> = ({ onOpenQuickCreate }) => {
                     )}
 
                     <button
-                      onClick={() => setEditingTask(task)}
-                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg text-xs font-semibold border border-slate-700 transition flex items-center space-x-1 cursor-pointer"
-                      title="Edit task details"
+                      onClick={() => handleStartEdit(task)}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-semibold border border-slate-700 transition flex items-center space-x-1 cursor-pointer"
+                      title="Edit task in card"
                     >
-                      <Edit3 className="w-3.5 h-3.5 text-indigo-400" />
+                      <Edit2 className="w-3.5 h-3.5 text-indigo-400" />
                       <span>Edit</span>
                     </button>
 
                     <button
                       onClick={() => deleteTask(task.id)}
-                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-xl transition cursor-pointer"
                       title="Delete task"
                     >
                       <Trash2 className="w-4 h-4" />

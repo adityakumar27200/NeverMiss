@@ -300,11 +300,11 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0">
+                  {/* Actions Toolbar */}
+                  <div className="pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 flex items-center justify-between sm:justify-end gap-1.5 flex-wrap shrink-0">
                     <button
                       onClick={() => handleStartEdit(dl)}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition cursor-pointer flex items-center space-x-1.5"
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-semibold border border-slate-700 transition cursor-pointer flex items-center space-x-1.5"
                       title="Edit deadline details directly in card"
                     >
                       <Edit2 className="w-3.5 h-3.5 text-amber-400" />
@@ -321,20 +321,22 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
                         currentReminders: dl.reminderTriggers,
                       })}
                       className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-xl text-xs font-semibold border border-amber-500/40 transition cursor-pointer flex items-center space-x-1.5"
+                      title="Adjust deadline cutoff date and time"
                     >
                       <Calendar className="w-3.5 h-3.5" />
                       <span>Adjust Cutoff</span>
                     </button>
                     <button
                       onClick={() => markDeadlineMet(dl.id)}
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-emerald-600/25 transition cursor-pointer flex items-center space-x-1.5"
+                      className="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-600 text-emerald-300 hover:text-white rounded-xl text-xs font-semibold border border-emerald-500/40 shadow-sm transition cursor-pointer flex items-center space-x-1.5"
+                      title="Mark deadline as met / delivered"
                     >
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Mark Met / Delivered</span>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 group-hover:text-white" />
+                      <span>Delivered</span>
                     </button>
                     <button
                       onClick={() => deleteDeadline(dl.id)}
-                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition"
+                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-xl transition cursor-pointer"
                       title="Delete deadline"
                     >
                       <Trash2 className="w-4 h-4" />

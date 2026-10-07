@@ -222,20 +222,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   const rel = getRelativeTimeText(targetTime, effectiveNow);
 
                   return (
-                    <div key={task.id} className="py-3 flex items-start justify-between gap-3 group">
-                      <div className="flex items-start space-x-2.5 min-w-0">
+                    <div key={task.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 group">
+                      <div className="flex items-start space-x-2.5 min-w-0 flex-1">
                         <button
                           onClick={() => completeTask(task.id)}
-                          className="mt-0.5 text-slate-500 hover:text-emerald-400 transition cursor-pointer"
+                          className="mt-0.5 text-slate-500 hover:text-emerald-400 transition cursor-pointer shrink-0"
                           title="Mark complete"
                         >
                           <Square className="w-4 h-4" />
                         </button>
-                        <div className="min-w-0">
-                          <h4 className="text-xs sm:text-sm font-semibold text-white group-hover:text-red-300 transition">
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs sm:text-sm font-semibold text-white group-hover:text-red-300 transition break-words">
                             {task.title}
                           </h4>
-                          <div className="flex items-center space-x-2 text-[11px] text-slate-400 mt-0.5">
+                          <div className="flex items-center space-x-2 text-[11px] text-slate-400 mt-0.5 flex-wrap">
                             <span className="text-red-400 font-medium">{rel.text}</span>
                             <span>•</span>
                             <span>Was due: {task.dueDate} {formatTime12Hour(task.dueTime)}</span>
@@ -243,7 +243,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-1.5 shrink-0 flex-wrap gap-y-1">
+                      <div className="flex items-center space-x-1.5 shrink-0 flex-wrap gap-y-1 self-end sm:self-auto">
                         <button
                           onClick={() => setScheduleTarget({
                             id: task.id,
@@ -254,7 +254,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             currentPriority: task.priority,
                             currentReminders: task.reminderRules,
                           })}
-                          className="px-2 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-[10px] font-semibold border border-indigo-500/30 transition cursor-pointer flex items-center space-x-1"
+                          className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-[10px] font-semibold border border-indigo-500/30 transition cursor-pointer flex items-center space-x-1"
                           title="Custom Date & Time"
                         >
                           <Calendar className="w-3 h-3" />
@@ -307,20 +307,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
               ) : (
                 dueTodayTasks.map(task => (
-                  <div key={task.id} className="py-3 flex items-start justify-between gap-3 group">
-                    <div className="flex items-start space-x-2.5 min-w-0">
+                  <div key={task.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 group">
+                    <div className="flex items-start space-x-2.5 min-w-0 flex-1">
                       <button
                         onClick={() => completeTask(task.id)}
-                        className="mt-0.5 text-slate-500 hover:text-emerald-400 transition cursor-pointer"
+                        className="mt-0.5 text-slate-500 hover:text-emerald-400 transition cursor-pointer shrink-0"
                         title="Mark complete"
                       >
                         <Square className="w-4 h-4" />
                       </button>
-                      <div className="min-w-0">
-                        <h4 className="text-xs sm:text-sm font-semibold text-white group-hover:text-indigo-300 transition">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-xs sm:text-sm font-semibold text-white group-hover:text-indigo-300 transition break-words">
                           {task.title}
                         </h4>
-                        <div className="flex items-center space-x-2 text-[11px] text-slate-400 mt-0.5">
+                        <div className="flex items-center space-x-2 text-[11px] text-slate-400 mt-0.5 flex-wrap">
                           <span className="text-cyan-400 font-mono font-medium">{formatTime12Hour(task.dueTime)}</span>
                           <span>•</span>
                           <span className="capitalize">{task.priority} priority</span>
@@ -328,7 +328,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-1.5 shrink-0 flex-wrap gap-y-1">
+                    <div className="flex items-center space-x-1.5 shrink-0 flex-wrap gap-y-1 self-end sm:self-auto">
                       <button
                         onClick={() => setScheduleTarget({
                           id: task.id,
@@ -339,7 +339,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           currentPriority: task.priority,
                           currentReminders: task.reminderRules,
                         })}
-                        className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-medium border border-slate-700 transition cursor-pointer flex items-center space-x-1"
+                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-medium border border-slate-700 transition cursor-pointer flex items-center space-x-1"
                         title="Reschedule / Custom Date & Time"
                       >
                         <Calendar className="w-3 h-3 text-cyan-400" />

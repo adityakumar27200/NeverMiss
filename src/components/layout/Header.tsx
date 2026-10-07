@@ -20,6 +20,7 @@ import {
   Zap,
   Eye,
   ArrowRightLeft,
+  Menu,
 } from 'lucide-react';
 import { formatTime12Hour } from '../../utils/dateUtils';
 
@@ -30,6 +31,7 @@ interface HeaderProps {
   onNavigateToNotifications: () => void;
   onNavigateToSettings: () => void;
   onNavigateToFamily?: () => void;
+  onOpenMobileNav?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -39,6 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateToNotifications,
   onNavigateToSettings,
   onNavigateToFamily,
+  onOpenMobileNav,
 }) => {
   const {
     effectiveNow,
@@ -62,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   // Automatically close notification center and user menu when clicking anywhere else
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
       const target = event.target as Node;
       if (notifRef.current && !notifRef.current.contains(target)) {
         setShowNotifPopover(false);
@@ -72,8 +75,12 @@ export const Header: React.FC<HeaderProps> = ({
       }
     };
 
+    document.addEventListener('pointerdown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
+      document.removeEventListener('pointerdown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
@@ -99,20 +106,29 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 text-slate-100 px-4 sm:px-6 py-3 shrink-0 z-30 shadow-sm backdrop-blur-md bg-opacity-95 relative">
-      <div className="flex items-center justify-between gap-3">
-        {/* Left: Branding & Current Time */}
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/20">
-              <Clock className="w-5 h-5 text-white" />
+    <header className="bg-slate-900 border-b border-slate-800 text-slate-100 px-3 sm:px-6 py-2.5 sm:py-3 shrink-0 z-30 shadow-sm backdrop-blur-md bg-opacity-95 relative">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        {/* Left: Hamburger (mobile) & Branding */}
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          {onOpenMobileNav && (
+            <button
+              type="button"
+              onClick={onOpenMobileNav}
+              className="lg:hidden p-2 -ml-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition cursor-pointer"
+              title="Open Navigation Menu"
+              aria-label="Open Navigation Menu"
+            >
+              <Menu className="w-5 h-5 text-indigo-400" />
+            </button>
+          )}
+
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/20 shrink-0">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base tracking-tight text-white">NeverMiss</span>
-                <span className="text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.2 rounded">
-                  PRO
-                </span>
+                <span className="font-bold text-sm sm:text-base tracking-tight text-white">NeverMiss</span>
               </div>
               <p className="text-[11px] text-slate-400 hidden sm:block">
                 Never forget a task, deadline or routine
@@ -152,30 +168,31 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Right Actions */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1.5 sm:space-x-2">
           {/* Mobile search */}
           <button
             onClick={onOpenSearch}
             className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition"
             title="Search"
+            aria-label="Search"
           >
             <Search className="w-4 h-4" />
           </button>
 
-          {/* Daily Summary Modal Trigger */}
+          {/* Daily Summary Modal Trigger (desktop/tablet) */}
           <button
             onClick={onOpenSummary}
-            className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-500/15 to-orange-500/15 hover:from-amber-500/25 hover:to-orange-500/25 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium transition cursor-pointer"
+            className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-500/15 to-orange-500/15 hover:from-amber-500/25 hover:to-orange-500/25 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium transition cursor-pointer"
             title="Daily Summary Digest"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:inline">Daily Digest</span>
+            <span className="hidden md:inline">Daily Digest</span>
           </button>
 
-          {/* Sound audio toggle */}
+          {/* Sound audio toggle (desktop/tablet) */}
           <button
             onClick={toggleSound}
-            className={`p-2 rounded-lg border text-xs transition cursor-pointer ${
+            className={`hidden sm:inline-flex p-2 rounded-lg border text-xs transition cursor-pointer ${
               settings.soundEnabled
                 ? 'bg-slate-800 text-indigo-400 border-slate-700 hover:bg-slate-700'
                 : 'bg-slate-800 text-slate-500 border-slate-700/50 hover:text-slate-300'
@@ -191,6 +208,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setShowNotifPopover(!showNotifPopover)}
               className="p-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/70 transition relative cursor-pointer"
               title="Notifications"
+              aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
@@ -200,9 +218,9 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </button>
 
-            {/* Dropdown */}
+            {/* Dropdown (Mobile-Safe Width) */}
             {showNotifPopover && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden">
+              <div className="absolute right-0 mt-2 w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
                 <div className="px-4 py-3 bg-slate-800/80 border-b border-slate-700/70 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="font-semibold text-sm text-slate-100">Notifications</span>
@@ -273,13 +291,13 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Quick Create Button */}
+          {/* Quick Create Button (Desktop/Tablet - on mobile the bottom floating + handles this) */}
           <button
             onClick={onOpenQuickCreate}
-            className="flex items-center space-x-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-md shadow-indigo-600/25 transition cursor-pointer"
+            className="hidden sm:flex items-center space-x-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-md shadow-indigo-600/25 transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Add Item</span>
+            <span>Add Item</span>
           </button>
 
           {/* User Account & Phone Indicator */}
@@ -291,7 +309,7 @@ export const Header: React.FC<HeaderProps> = ({
                 title="Account Profile & Phone"
               >
                 <div
-                  className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shadow-sm"
+                  className="w-7 h-7 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center text-white text-xs sm:text-[11px] font-bold shadow-sm"
                   style={{ backgroundColor: currentUser.avatarColor || '#6366F1' }}
                 >
                   {currentUser.fullName.charAt(0)}
@@ -309,9 +327,9 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               </button>
 
-              {/* User Dropdown */}
+              {/* User Dropdown (Mobile-Safe Width) */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-[calc(100vw-1.5rem)] max-w-xs sm:w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
                   <div className="p-4 border-b border-slate-800 bg-slate-950/60">
                     <div className="flex items-center space-x-3">
                       <div

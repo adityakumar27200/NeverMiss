@@ -33,39 +33,36 @@ export const TeamScopeBar: React.FC<TeamScopeBarProps> = ({ onOpenFamilyModal })
   const isAdmin = currentUser.role === 'admin';
 
   return (
-    <div className="mb-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-sm backdrop-blur-sm">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <div className="mb-3 sm:mb-6 bg-slate-900/90 border border-slate-800 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 shadow-sm backdrop-blur-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
         {/* Left: Current Active Identity & Family */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
           <div
-            className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-md shrink-0 ring-2 ring-indigo-500/30"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-md shrink-0 ring-2 ring-indigo-500/30"
             style={{ backgroundColor: currentUser.avatarColor || '#6366F1' }}
           >
             {currentUser.fullName.charAt(0)}
           </div>
-          <div>
-            <div className="flex items-center space-x-2 flex-wrap">
-              <span className="font-bold text-white text-xs sm:text-sm">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center space-x-1.5 sm:space-x-2 flex-wrap gap-y-0.5">
+              <span className="font-bold text-white text-xs sm:text-sm truncate">
                 {currentUser.fullName}
               </span>
               {isAdmin ? (
-                <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                  <Crown className="w-3 h-3 text-purple-400" />
+                <span className="inline-flex items-center space-x-1 px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  <Crown className="w-2.5 h-2.5 text-purple-400" />
                   <span>ADMIN</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                <span className="inline-flex items-center space-x-1 px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                   <span>USER</span>
                 </span>
               )}
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-pink-500/15 text-pink-300 border border-pink-500/25 font-medium">
+              <span className="text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-md bg-pink-500/15 text-pink-300 border border-pink-500/25 font-medium">
                 {currentUser.relationship || 'Family Member'}
               </span>
-              <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
-                {currentUser.countryCode} {currentUser.phoneNumber}
-              </span>
             </div>
-            <p className="text-[11px] text-slate-400 truncate mt-0.5">
+            <p className="text-[10px] sm:text-[11px] text-slate-400 truncate mt-0.5 hidden sm:block">
               👨‍👩‍👧‍👦 {currentUser.familyName || `${currentUser.fullName}'s Family`} ({familyMembers.length} members) •{' '}
               {isAdmin ? 'System administrator & family head' : 'Family member account'}
             </p>
@@ -73,12 +70,12 @@ export const TeamScopeBar: React.FC<TeamScopeBarProps> = ({ onOpenFamilyModal })
         </div>
 
         {/* Right: Data Scope Filtering (My Items vs Family Items vs Member Filter) */}
-        <div className="flex items-center space-x-2 flex-wrap gap-y-2">
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+        <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end overflow-x-auto pb-0.5">
+          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs shrink-0">
             <button
               type="button"
               onClick={() => setTeamScope('my')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center space-x-1.5 ${
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center space-x-1.5 ${
                 teamScope === 'my'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
@@ -92,7 +89,7 @@ export const TeamScopeBar: React.FC<TeamScopeBarProps> = ({ onOpenFamilyModal })
             <button
               type="button"
               onClick={() => setTeamScope('family')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center space-x-1.5 ${
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center space-x-1.5 ${
                 teamScope === 'family' || teamScope === 'all'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
@@ -100,32 +97,12 @@ export const TeamScopeBar: React.FC<TeamScopeBarProps> = ({ onOpenFamilyModal })
               title="Show all family items & shared lists"
             >
               <Users className="w-3.5 h-3.5 text-indigo-300" />
-              <span>Our Family ({familyMembers.length})</span>
+              <span>Family ({familyMembers.length})</span>
             </button>
-
-            {/* Specific Family Member Filter */}
-            <div className="relative pl-1 border-l border-slate-800 ml-1">
-              <select
-                value={teamScope !== 'my' && teamScope !== 'family' && teamScope !== 'all' ? teamScope : ''}
-                onChange={e => {
-                  if (e.target.value) setTeamScope(e.target.value);
-                }}
-                className="bg-transparent text-slate-300 text-[11px] py-1 px-1.5 focus:outline-none cursor-pointer"
-              >
-                <option value="" disabled className="bg-slate-900 text-slate-400">
-                  Filter by Member...
-                </option>
-                {familyMembers.map(m => (
-                  <option key={m.id} value={m.id} className="bg-slate-900 text-slate-200">
-                    {m.fullName} ({m.relationship || m.role})
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
 
           {/* Quick Switch Family User Profile */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setShowSwitchDropdown(!showSwitchDropdown)}
