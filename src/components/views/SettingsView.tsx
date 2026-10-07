@@ -16,6 +16,8 @@ import {
   LogOut,
   KeyRound,
   ShieldCheck,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { formatTime12Hour, formatHumanDate } from '../../utils/dateUtils';
 
@@ -35,6 +37,7 @@ export const SettingsView: React.FC = () => {
 
   const [importJsonText, setImportJsonText] = useState('');
   const [importStatus, setImportStatus] = useState<string | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Change password state
   const [newPassword, setNewPassword] = useState('');
@@ -90,8 +93,89 @@ export const SettingsView: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">System Settings & Data Control</h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Configure notification schedules, quiet hours, data backup, and the time-travel testing simulator.
+            Configure theme, notification schedules, quiet hours, data backup, and the time-travel testing simulator.
           </p>
+        </div>
+      </div>
+
+      {/* Theme & Appearance Section */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <div>
+          <h2 className="font-bold text-sm sm:text-base text-white flex items-center space-x-2">
+            <Sun className="w-5 h-5 text-amber-400" />
+            <span>Theme & Display Settings</span>
+          </h2>
+          <p className="text-xs text-slate-400 mt-1">
+            Choose your preferred interface theme. Changes apply instantly across the entire application.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Dark Mode Card */}
+          <button
+            type="button"
+            onClick={() => updateSettings({ theme: 'dark' })}
+            className={`p-4 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+              (settings.theme || 'dark') === 'dark'
+                ? 'bg-slate-800/90 border-indigo-500 shadow-md ring-2 ring-indigo-500/30'
+                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+            }`}
+          >
+            <div className="flex items-center justify-between w-full mb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 bg-slate-900 rounded-lg text-indigo-400 border border-slate-700">
+                  <Moon className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-white">Dark Theme</h4>
+                  <span className="text-[11px] text-slate-400">Deep slate tones, high contrast</span>
+                </div>
+              </div>
+              {(settings.theme || 'dark') === 'dark' && (
+                <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-full text-[10px] font-bold">
+                  Active
+                </span>
+              )}
+            </div>
+            <div className="w-full h-8 bg-slate-950 border border-slate-800 rounded-lg flex items-center px-3 space-x-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+              <span className="w-12 h-2 rounded bg-slate-800" />
+              <span className="w-8 h-2 rounded bg-slate-800" />
+            </div>
+          </button>
+
+          {/* Light Mode Card */}
+          <button
+            type="button"
+            onClick={() => updateSettings({ theme: 'light' })}
+            className={`p-4 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+              settings.theme === 'light'
+                ? 'bg-slate-800/90 border-indigo-500 shadow-md ring-2 ring-indigo-500/30'
+                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+            }`}
+          >
+            <div className="flex items-center justify-between w-full mb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 border border-amber-500/30">
+                  <Sun className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-white">Light Theme</h4>
+                  <span className="text-[11px] text-slate-400">Crisp white & clean daylight palette</span>
+                </div>
+              </div>
+              {settings.theme === 'light' && (
+                <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-full text-[10px] font-bold">
+                  Active
+                </span>
+              )}
+            </div>
+            <div className="w-full h-8 bg-white border border-slate-300 rounded-lg flex items-center px-3 space-x-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-indigo-600" />
+              <span className="w-12 h-2 rounded bg-slate-200" />
+              <span className="w-8 h-2 rounded bg-slate-200" />
+            </div>
+          </button>
         </div>
       </div>
 
@@ -324,17 +408,34 @@ export const SettingsView: React.FC = () => {
             <span>Export Complete Backup (JSON)</span>
           </button>
 
-          <button
-            onClick={() => {
-              if (window.confirm('Reset all tasks, deadlines and routines to initial sample demo data?')) {
-                resetAllData();
-              }
-            }}
-            className="w-full sm:w-auto px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 flex items-center justify-center space-x-2 transition cursor-pointer"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Reset to Initial Sample Data</span>
-          </button>
+          {!showResetConfirm ? (
+            <button
+              onClick={() => setShowResetConfirm(true)}
+              className="w-full sm:w-auto px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 flex items-center justify-center space-x-2 transition cursor-pointer"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Reset to Initial Sample Data</span>
+            </button>
+          ) : (
+            <div className="w-full sm:w-auto p-2.5 bg-red-950/40 border border-red-500/40 rounded-xl flex items-center gap-2">
+              <span className="text-xs text-red-200">Reset everything?</span>
+              <button
+                onClick={() => {
+                  resetAllData();
+                  setShowResetConfirm(false);
+                }}
+                className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold transition cursor-pointer"
+              >
+                Yes, Reset
+              </button>
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Import JSON */}

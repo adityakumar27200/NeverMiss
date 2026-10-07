@@ -86,7 +86,7 @@ export const DailyPlannerView: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Add Block Bar - Fully Responsive with Grid & No Hiding Button */}
+      {/* Quick Add Block Bar - Fully Responsive with Guaranteed Visible Add Button */}
       <form
         onSubmit={handleAddBlock}
         className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl shadow-sm space-y-3.5"
@@ -115,7 +115,7 @@ export const DailyPlannerView: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             <div>
               <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
                 Start Time
@@ -124,7 +124,7 @@ export const DailyPlannerView: React.FC = () => {
                 type="time"
                 value={newStart}
                 onChange={e => setNewStart(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
               />
             </div>
 
@@ -136,18 +136,18 @@ export const DailyPlannerView: React.FC = () => {
                 type="time"
                 value={newEnd}
                 onChange={e => setNewEnd(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
               />
             </div>
 
-            <div>
+            <div className="col-span-2 sm:col-span-1">
               <label className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
                 Block Category
               </label>
               <select
                 value={newType}
                 onChange={e => setNewType(e.target.value as any)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
               >
                 <option value="custom">Custom Block</option>
                 <option value="routine">Routine</option>
@@ -155,25 +155,36 @@ export const DailyPlannerView: React.FC = () => {
                 <option value="event">Meeting / Event</option>
               </select>
             </div>
+          </div>
 
-            <div className="col-span-2 sm:col-span-1 flex items-end">
-              <button
-                type="submit"
-                className="w-full h-[34px] bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-600/25 transition cursor-pointer flex items-center justify-center space-x-1.5"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Block</span>
-              </button>
-            </div>
+          {/* Dedicated, prominent Add Block button row */}
+          <div className="pt-1 flex items-center justify-end">
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-md shadow-indigo-600/30 transition cursor-pointer flex items-center justify-center space-x-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Time Block</span>
+            </button>
           </div>
         </div>
       </form>
 
       {/* Hourly Timeline */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-          Scheduled Blocks ({sortedBlocks.length})
-        </h3>
+        <div className="flex items-center justify-between pb-2 border-b border-slate-800/80 mb-2">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            Scheduled Blocks ({sortedBlocks.length})
+          </h3>
+          <button
+            type="button"
+            onClick={handleFocusAdd}
+            className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-xs font-semibold border border-indigo-500/30 transition cursor-pointer flex items-center space-x-1"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Block</span>
+          </button>
+        </div>
 
         {sortedBlocks.length === 0 ? (
           <div className="py-10 text-center text-xs text-slate-400">
@@ -230,6 +241,18 @@ export const DailyPlannerView: React.FC = () => {
             ))}
           </div>
         )}
+      </div>
+      {/* Mobile Floating Action Button (Always visible on mobile screens) */}
+      <div className="sm:hidden fixed bottom-20 right-4 z-40">
+        <button
+          type="button"
+          onClick={handleFocusAdd}
+          className="w-12 h-12 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white rounded-full shadow-xl shadow-indigo-600/50 border border-indigo-400/40 flex items-center justify-center cursor-pointer transition"
+          title="Add Time Block"
+          aria-label="Add Time Block"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
       </div>
     </div>
   );

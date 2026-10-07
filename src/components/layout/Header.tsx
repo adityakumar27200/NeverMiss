@@ -21,6 +21,8 @@ import {
   Eye,
   ArrowRightLeft,
   Menu,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { formatTime12Hour } from '../../utils/dateUtils';
 
@@ -200,6 +202,20 @@ export const Header: React.FC<HeaderProps> = ({
             title={settings.soundEnabled ? 'Sound Alerts On' : 'Sound Alerts Muted'}
           >
             {settings.soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+
+          {/* Theme Mode Toggle (Dark / Light) */}
+          <button
+            onClick={() => updateSettings({ theme: settings.theme === 'light' ? 'dark' : 'light' })}
+            className="p-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/70 transition cursor-pointer"
+            title={settings.theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            aria-label="Toggle Theme Mode"
+          >
+            {settings.theme === 'light' ? (
+              <Moon className="w-4 h-4 text-indigo-400" />
+            ) : (
+              <Sun className="w-4 h-4 text-amber-400" />
+            )}
           </button>
 
           {/* Notification Center Popover */}

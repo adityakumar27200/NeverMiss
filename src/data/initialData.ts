@@ -738,6 +738,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
 ];
 
 export const DEFAULT_SETTINGS: AppSettings = {
+  theme: 'dark',
   reminderFrequency: '15min',
   soundEnabled: true,
   browserNotificationsEnabled: false,

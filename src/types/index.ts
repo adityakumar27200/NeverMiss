@@ -257,6 +257,7 @@ export interface PlannerBlock {
 }
 
 export interface AppSettings {
+  theme: 'dark' | 'light';
   reminderFrequency: 'once' | '15min' | '30min' | '1hour' | '1day';
   soundEnabled: boolean;
   browserNotificationsEnabled: boolean;

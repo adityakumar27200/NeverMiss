@@ -426,6 +426,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [currentUser]);
 
+  // Sync theme to document element
+  useEffect(() => {
+    const root = document.documentElement;
+    const theme = settings.theme || 'dark';
+    if (theme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      root.setAttribute('data-theme', 'light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+    }
+  }, [settings.theme]);
+
   // Simulated time management
   const [clockTick, setClockTick] = useState(0);
   useEffect(() => {
