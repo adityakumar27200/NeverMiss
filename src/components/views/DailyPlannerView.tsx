@@ -187,8 +187,16 @@ export const DailyPlannerView: React.FC = () => {
         </div>
 
         {sortedBlocks.length === 0 ? (
-          <div className="py-10 text-center text-xs text-slate-400">
-            No timeblocks created for today. Use the form above to plan your schedule.
+          <div className="py-12 text-center text-xs text-slate-400 space-y-3">
+            <p>No timeblocks created for today. Use the form above to plan your schedule.</p>
+            <button
+              type="button"
+              onClick={handleFocusAdd}
+              className="inline-flex items-center space-x-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-600/25 transition cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add First Time Block</span>
+            </button>
           </div>
         ) : (
           <div className="divide-y divide-slate-800/70">
@@ -210,19 +218,19 @@ export const DailyPlannerView: React.FC = () => {
                   </button>
 
                   <div className="w-20 sm:w-28 shrink-0">
-                    <span className="font-mono text-cyan-400 text-xs font-semibold block">
+                    <span className="font-mono text-cyan-500 dark:text-cyan-400 text-xs font-semibold block">
                       {formatTime12Hour(block.startTime)}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                       to {formatTime12Hour(block.endTime)}
                     </span>
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <h4 className={`text-xs sm:text-sm font-semibold break-words ${block.completed ? 'line-through text-slate-400' : 'text-white'}`}>
+                    <h4 className={`text-xs sm:text-sm font-semibold break-words ${block.completed ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}`}>
                       {block.title}
                     </h4>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700 capitalize inline-block mt-0.5">
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 capitalize inline-block mt-0.5">
                       {block.type}
                     </span>
                   </div>
@@ -231,7 +239,7 @@ export const DailyPlannerView: React.FC = () => {
                 <div className="flex items-center space-x-1.5 shrink-0">
                   <button
                     onClick={() => deletePlannerBlock(block.id)}
-                    className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+                    className="p-1.5 text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
                     title="Remove block"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -242,16 +250,18 @@ export const DailyPlannerView: React.FC = () => {
           </div>
         )}
       </div>
-      {/* Mobile Floating Action Button (Always visible on mobile screens) */}
-      <div className="sm:hidden fixed bottom-20 right-4 z-40">
+
+      {/* Floating Action Button (Always accessible anywhere on the page, never hidden) */}
+      <div className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-40">
         <button
           type="button"
           onClick={handleFocusAdd}
-          className="w-12 h-12 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white rounded-full shadow-xl shadow-indigo-600/50 border border-indigo-400/40 flex items-center justify-center cursor-pointer transition"
+          className="flex items-center space-x-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white rounded-full shadow-xl shadow-indigo-600/40 border border-indigo-400/30 font-semibold text-xs sm:text-sm cursor-pointer transition hover:shadow-2xl"
           title="Add Time Block"
           aria-label="Add Time Block"
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          <span>Add Block</span>
         </button>
       </div>
     </div>

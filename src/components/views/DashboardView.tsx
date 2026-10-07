@@ -83,28 +83,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       id: t.id,
       title: t.title,
       type: 'Critical Overdue Task',
-      color: 'text-red-400 bg-red-500/10 border-red-500/30',
+      color: 'text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-500/10 border-red-300 dark:border-red-500/30',
       action: () => completeTask(t.id),
     })),
     ...activeDeadlines.filter(d => d.deadlineDate <= todayStr || d.priority === 'critical').map(d => ({
       id: d.id,
       title: d.title,
       type: `Deadline: ${d.deadlineDate}`,
-      color: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+      color: 'text-amber-800 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/30',
       action: () => onNavigate('deadlines'),
     })),
     ...dueTodayTasks.filter(t => t.priority === 'high' || t.priority === 'critical').map(t => ({
       id: t.id,
       title: t.title,
       type: 'High Priority Today',
-      color: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+      color: 'text-orange-800 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/10 border-orange-300 dark:border-orange-500/30',
       action: () => completeTask(t.id),
     })),
     ...pendingFollowUps.slice(0, 2).map(f => ({
       id: f.id,
       title: `Follow up with ${f.contactName} (${f.subject})`,
       type: 'Follow-up',
-      color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30',
+      color: 'text-cyan-800 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-500/10 border-cyan-300 dark:border-cyan-500/30',
       action: () => completeFollowUp(f.id, 3),
     })),
   ].slice(0, 4);
@@ -145,17 +145,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* Smart Daily Prioritization: "DO THIS FIRST" (Section 30) */}
       {doThisFirstItems.length > 0 && (
-        <div className="bg-gradient-to-r from-red-950/40 via-amber-950/30 to-slate-900 border border-amber-500/30 rounded-2xl p-4 sm:p-5 shadow-lg">
+        <div className="bg-gradient-to-r from-red-50 via-amber-50 to-white dark:from-red-950/40 dark:via-amber-950/30 dark:to-slate-900 border border-amber-300 dark:border-amber-500/30 rounded-2xl p-4 sm:p-5 shadow-sm dark:shadow-lg">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
-              <div className="p-1.5 bg-amber-500/20 rounded-lg text-amber-400">
-                <Zap className="w-4 h-4 fill-amber-400" />
+              <div className="p-1.5 bg-amber-100 dark:bg-amber-500/20 rounded-lg text-amber-600 dark:text-amber-400">
+                <Zap className="w-4 h-4 fill-amber-500 dark:fill-amber-400" />
               </div>
-              <h2 className="font-bold text-sm sm:text-base text-amber-200 uppercase tracking-wide">
+              <h2 className="font-bold text-sm sm:text-base text-amber-950 dark:text-amber-200 uppercase tracking-wide">
                 🔥 Do This First (Smart Priority)
               </h2>
             </div>
-            <span className="text-[11px] text-amber-300/80 font-medium hidden sm:inline">
+            <span className="text-[11px] text-amber-800 dark:text-amber-300/80 font-medium hidden sm:inline">
               Engineered high-impact sequence
             </span>
           </div>
@@ -164,14 +164,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {doThisFirstItems.map((item, idx) => (
               <div
                 key={item.id}
-                className="p-3 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between gap-3 text-xs shadow-sm hover:border-slate-700 transition"
+                className="p-3 bg-white dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 text-xs shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition"
               >
                 <div className="flex items-center space-x-2.5 min-w-0">
-                  <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center text-[10px] font-bold shrink-0">
+                  <span className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center text-[10px] font-bold shrink-0">
                     {idx + 1}
                   </span>
                   <div className="truncate">
-                    <span className="font-semibold text-slate-100 block truncate">{item.title}</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100 block truncate">{item.title}</span>
                     <span className={`text-[10px] px-1.5 py-0.2 rounded border font-medium inline-block mt-0.5 ${item.color}`}>
                       {item.type}
                     </span>

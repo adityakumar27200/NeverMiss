@@ -245,14 +245,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition cursor-pointer group ${
               activeTab === 'android_plan'
                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20'
-                : 'text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/40 border border-emerald-900/40'
+                : 'text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/40'
             }`}
           >
             <div className="flex items-center space-x-2.5 min-w-0">
-              <Smartphone className="w-4 h-4 text-emerald-400 group-hover:text-emerald-300" />
+              <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300" />
               <span className="truncate font-semibold">Android App Plan</span>
             </div>
-            <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30">
               ROADMAP
             </span>
           </button>

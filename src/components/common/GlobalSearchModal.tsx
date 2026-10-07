@@ -110,7 +110,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-start justify-center pt-16 sm:pt-24 p-4">
       <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
         {/* Search bar */}
-        <div className="px-4 py-3.5 border-b border-slate-800 flex items-center space-x-3 bg-slate-950/60">
+        <div className="px-4 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center space-x-3 bg-slate-50 dark:bg-slate-950/60">
           <Search className="w-5 h-5 text-indigo-400 shrink-0" />
           <input
             ref={inputRef}
@@ -118,17 +118,17 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Type to search tasks, deadlines, routines, follow-ups, AWS, contacts..."
-            className="w-full bg-transparent text-white placeholder-slate-400 text-sm focus:outline-none"
+            className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="text-slate-400 hover:text-white p-1 rounded-md"
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-md"
             >
               <X className="w-4 h-4" />
             </button>
           )}
-          <kbd className="hidden sm:inline-block px-2 py-0.5 bg-slate-800 text-slate-400 text-[10px] rounded border border-slate-700 font-mono">
+          <kbd className="hidden sm:inline-block px-2 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] rounded border border-slate-300 dark:border-slate-700 font-mono">
             ESC
           </kbd>
         </div>
@@ -143,8 +143,8 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
           )}
 
           {q && totalResults === 0 && (
-            <div className="py-8 text-center text-slate-400 text-xs">
-              No matching records found for &quot;<span className="text-white font-medium">{query}</span>&quot;.
+            <div className="py-8 text-center text-slate-500 dark:text-slate-400 text-xs">
+              No matching records found for &quot;<span className="text-slate-900 dark:text-white font-medium">{query}</span>&quot;.
             </div>
           )}
 

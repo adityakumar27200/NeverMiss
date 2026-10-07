@@ -148,11 +148,11 @@ const AppContent: React.FC = () => {
       </div>
 
       {/* Mobile Bottom Quick Bar for instant one-thumb navigation */}
-      <nav className="lg:hidden bg-slate-900/95 border-t border-slate-800 backdrop-blur-md px-4 py-2 sticky bottom-0 z-30 flex items-center justify-around text-slate-400">
+      <nav className="lg:hidden bg-white/95 dark:bg-slate-900/95 border-t border-slate-200 dark:border-slate-800 backdrop-blur-md px-4 py-2 sticky bottom-0 z-30 flex items-center justify-around text-slate-600 dark:text-slate-400">
         <button
           onClick={() => setActiveTab('dashboard')}
-          className={`flex flex-col items-center py-1 text-[10px] ${
-            activeTab === 'dashboard' ? 'text-indigo-400 font-bold' : 'hover:text-slate-200'
+          className={`flex flex-col items-center py-1 text-[10px] cursor-pointer ${
+            activeTab === 'dashboard' ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <LayoutDashboard className="w-4 h-4" />
@@ -160,24 +160,24 @@ const AppContent: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('tasks')}
-          className={`flex flex-col items-center py-1 text-[10px] ${
-            activeTab === 'tasks' ? 'text-indigo-400 font-bold' : 'hover:text-slate-200'
+          className={`flex flex-col items-center py-1 text-[10px] cursor-pointer ${
+            activeTab === 'tasks' ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <CheckSquare className="w-4 h-4" />
           <span>Tasks</span>
         </button>
         <button
-          onClick={() => handleOpenQuickCreate('task')}
-          className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-cyan-500 text-white flex items-center justify-center -mt-4 shadow-lg shadow-indigo-600/30"
+          onClick={() => handleOpenQuickCreate(activeTab === 'planner' ? 'planner' : 'task')}
+          className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-cyan-500 text-white flex items-center justify-center -mt-4 shadow-lg shadow-indigo-600/30 cursor-pointer"
           title="Add New"
         >
           <Plus className="w-5 h-5" />
         </button>
         <button
           onClick={() => setActiveTab('deadlines')}
-          className={`flex flex-col items-center py-1 text-[10px] ${
-            activeTab === 'deadlines' ? 'text-amber-400 font-bold' : 'hover:text-slate-200'
+          className={`flex flex-col items-center py-1 text-[10px] cursor-pointer ${
+            activeTab === 'deadlines' ? 'text-amber-600 dark:text-amber-400 font-bold' : 'hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <AlertTriangle className="w-4 h-4" />
@@ -185,8 +185,8 @@ const AppContent: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('routines')}
-          className={`flex flex-col items-center py-1 text-[10px] ${
-            activeTab === 'routines' ? 'text-rose-400 font-bold' : 'hover:text-slate-200'
+          className={`flex flex-col items-center py-1 text-[10px] cursor-pointer ${
+            activeTab === 'routines' ? 'text-rose-600 dark:text-rose-400 font-bold' : 'hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <Flame className="w-4 h-4" />

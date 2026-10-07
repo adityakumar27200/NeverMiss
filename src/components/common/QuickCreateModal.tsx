@@ -9,6 +9,7 @@ import {
   PhoneCall,
   ShoppingCart,
   UserPlus,
+  Timer,
 } from 'lucide-react';
 import { formatDateYMD, formatTimeHM } from '../../utils/dateUtils';
 import { Priority, RoutineRepeatType, GroceryCategory } from '../../types';
@@ -16,7 +17,7 @@ import { Priority, RoutineRepeatType, GroceryCategory } from '../../types';
 interface QuickCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialTab?: 'task' | 'event' | 'deadline' | 'routine' | 'followup' | 'grocery' | 'contact';
+  initialTab?: 'task' | 'event' | 'deadline' | 'routine' | 'followup' | 'grocery' | 'contact' | 'planner';
   lockTab?: boolean; // When true, only open that specific item creation and hide the other tabs
 }
 
@@ -34,6 +35,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
     addFollowUp,
     addGroceryItem,
     addContact,
+    addPlannerBlock,
     categories,
     contacts,
     effectiveNow,
@@ -43,7 +45,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
     canCreate,
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'task' | 'event' | 'deadline' | 'routine' | 'followup' | 'grocery' | 'contact'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'task' | 'event' | 'deadline' | 'routine' | 'followup' | 'grocery' | 'contact' | 'planner'>(initialTab);
 
   // Synchronize activeTab whenever the modal is opened or initialTab changes
   useEffect(() => {
@@ -124,6 +126,12 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   const [cntCompany, setCntCompany] = useState('');
   const [cntRole, setCntRole] = useState('');
   const [cntNotes, setCntNotes] = useState('');
+
+  // Daily Planner form state
+  const [plannerTitle, setPlannerTitle] = useState('');
+  const [plannerStart, setPlannerStart] = useState('09:00');
+  const [plannerEnd, setPlannerEnd] = useState('10:00');
+  const [plannerType, setPlannerType] = useState<'task' | 'routine' | 'event' | 'custom'>('custom');
 
   if (!isOpen) return null;
 
@@ -275,6 +283,21 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
     onClose();
   };
 
+  const handleCreatePlannerBlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!plannerTitle.trim()) return;
+
+    addPlannerBlock({
+      title: plannerTitle.trim(),
+      startTime: plannerStart,
+      endTime: plannerEnd,
+      type: plannerType,
+      completed: false,
+    });
+    setPlannerTitle('');
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
@@ -289,7 +312,8 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
                 activeTab === 'event' ? 'Create Calendar Event' :
                 activeTab === 'followup' ? 'Create Follow-up' :
                 activeTab === 'grocery' ? 'Add Grocery Item' :
-                activeTab === 'contact' ? 'Add Contact' : 'Create New Entry'
+                activeTab === 'contact' ? 'Add Contact' :
+                activeTab === 'planner' ? 'Create Time Block' : 'Create New Entry'
               ) : 'Create New Entry'}
             </span>
             <span className="text-xs text-slate-400">NeverMiss Productivity Suite</span>
@@ -334,6 +358,16 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
             >
               <Flame className="w-3.5 h-3.5" />
               <span>Routine</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('planner')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 cursor-pointer ${
+                activeTab === 'planner' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <Timer className="w-3.5 h-3.5" />
+              <span>Daily Planner</span>
             </button>
             <button
               type="button"
@@ -1118,6 +1152,76 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
                   className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-purple-600/25 transition cursor-pointer"
                 >
                   Save Contact
+                </button>
+              </div>
+            </form>
+          )}
+
+          {activeTab === 'planner' && (
+            <form onSubmit={handleCreatePlannerBlock} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Time Block Title <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={plannerTitle}
+                  onChange={e => setPlannerTitle(e.target.value)}
+                  placeholder="e.g. Deep Work: Code Review, Client Meeting, Gym & Run..."
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Start Time</label>
+                  <input
+                    type="time"
+                    value={plannerStart}
+                    onChange={e => setPlannerStart(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">End Time</label>
+                  <input
+                    type="time"
+                    value={plannerEnd}
+                    onChange={e => setPlannerEnd(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Block Category</label>
+                <select
+                  value={plannerType}
+                  onChange={e => setPlannerType(e.target.value as any)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="custom">Custom Focus Block</option>
+                  <option value="routine">Daily Routine</option>
+                  <option value="task">Priority Task</option>
+                  <option value="event">Meeting / Scheduled Event</option>
+                </select>
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-600/25 transition cursor-pointer flex items-center space-x-1.5"
+                >
+                  <Timer className="w-3.5 h-3.5" />
+                  <span>Add Time Block</span>
                 </button>
               </div>
             </form>

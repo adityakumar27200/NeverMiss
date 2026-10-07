@@ -108,17 +108,17 @@ class AlarmReceiver : BroadcastReceiver() {
   return (
     <div className="space-y-6 pb-12 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-slate-900 border border-emerald-500/30 p-6 rounded-2xl shadow-lg space-y-2">
+      <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-white dark:from-emerald-950/40 dark:via-teal-950/30 dark:to-slate-900 border border-emerald-300 dark:border-emerald-500/30 p-6 rounded-2xl shadow-sm dark:shadow-lg space-y-2">
         <div className="flex items-center space-x-2.5">
-          <Smartphone className="w-7 h-7 text-emerald-400" />
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+          <Smartphone className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Complete Android App Engineering Plan
           </h1>
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30">
             OFFICIAL BLUEPRINT
           </span>
         </div>
-        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
           Here is your comprehensive, production-grade architectural guide to build Chronos as an Android application. Follow these 7 systematic steps to achieve 100% reliable background alarms, offline persistence, and seamless mobile UX.
         </p>
       </div>

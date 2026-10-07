@@ -208,20 +208,22 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
             return (
               <div
                 key={dl.id}
-                className={`bg-slate-900 border rounded-2xl p-5 shadow-lg transition ${
+                className={`border rounded-2xl p-5 shadow-sm dark:shadow-lg transition ${
                   isOverdue
-                    ? 'border-red-500/60 bg-gradient-to-r from-red-950/20 to-slate-900'
-                    : 'border-amber-500/40 bg-gradient-to-r from-amber-950/10 to-slate-900'
+                    ? 'border-red-300 dark:border-red-500/60 bg-gradient-to-r from-red-50/80 to-white dark:from-red-950/20 dark:to-slate-900'
+                    : 'border-amber-300 dark:border-amber-500/40 bg-gradient-to-r from-amber-50/60 to-white dark:from-amber-950/10 dark:to-slate-900'
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="space-y-2 min-w-0">
                     <div className="flex items-center space-x-2 flex-wrap gap-1">
-                      <h3 className="font-bold text-base sm:text-lg text-white">
+                      <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
                         {dl.title}
                       </h3>
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                        dl.priority === 'critical' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        dl.priority === 'critical'
+                          ? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-500/30'
+                          : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30'
                       }`}>
                         {dl.priority}
                       </span>
@@ -230,25 +232,25 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
                           🚨 OVERDUE
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30">
                           ⏱ {rel.text}
                         </span>
                       )}
                     </div>
 
                     {dl.description && (
-                      <p className="text-xs text-slate-300 leading-relaxed">{dl.description}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{dl.description}</p>
                     )}
 
                     {dl.notes && (
-                      <div className="p-3 bg-slate-800/80 rounded-xl text-xs text-slate-300 border border-slate-700/60">
-                        <span className="font-semibold text-amber-400">Notes: </span>
+                      <div className="p-3 bg-slate-100 dark:bg-slate-800/80 rounded-xl text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60">
+                        <span className="font-semibold text-amber-700 dark:text-amber-400">Notes: </span>
                         {dl.notes}
                       </div>
                     )}
 
-                    <div className="flex items-center space-x-4 text-xs text-slate-400 flex-wrap gap-y-1 pt-1">
-                      <span className="flex items-center space-x-1 font-mono text-cyan-400 font-semibold">
+                    <div className="flex items-center space-x-4 text-xs text-slate-500 dark:text-slate-400 flex-wrap gap-y-1 pt-1">
+                      <span className="flex items-center space-x-1 font-mono text-cyan-700 dark:text-cyan-400 font-semibold">
                         <Clock className="w-4 h-4" />
                         <span>Cutoff: {dl.deadlineDate} at {formatTime12Hour(dl.deadlineTime)}</span>
                       </span>
@@ -266,9 +268,9 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
                         if (!assigneeUser) return null;
                         const isSelf = assigneeUser.id === currentUser?.id;
                         return (
-                          <span className="flex items-center space-x-1 px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/25 text-[10px] font-medium">
+                          <span className="flex items-center space-x-1 px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/25 text-[10px] font-medium">
                             <span>👤 {isSelf ? 'Assigned to You' : `Assigned to ${assigneeUser.fullName}`}</span>
-                            {assigneeUser.relationship && <span className="text-slate-400">({assigneeUser.relationship})</span>}
+                            {assigneeUser.relationship && <span className="text-slate-500 dark:text-slate-400">({assigneeUser.relationship})</span>}
                           </span>
                         );
                       })()}
@@ -276,7 +278,7 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
 
                     {/* Progressive Trigger Badges */}
                     <div className="pt-3">
-                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
                         Active Alert Escalation Rules:
                       </span>
                       <div className="flex items-center flex-wrap gap-1.5">
@@ -287,8 +289,8 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
                               key={trigger.id}
                               className={`text-[10px] px-2 py-0.5 rounded-lg border font-medium flex items-center space-x-1 ${
                                 isActive
-                                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                                  : 'bg-slate-800/40 text-slate-600 border-slate-800'
+                                  ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-500/40'
+                                  : 'bg-slate-100 dark:bg-slate-800/40 text-slate-500 dark:text-slate-600 border-slate-200 dark:border-slate-800'
                               }`}
                             >
                               <Bell className="w-2.5 h-2.5" />
@@ -301,13 +303,13 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
                   </div>
 
                   {/* Actions Toolbar */}
-                  <div className="pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 flex items-center justify-between sm:justify-end gap-1.5 flex-wrap shrink-0">
+                  <div className="pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-slate-800/80 flex items-center justify-between sm:justify-end gap-1.5 flex-wrap shrink-0">
                     <button
                       onClick={() => handleStartEdit(dl)}
-                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg text-xs font-medium border border-slate-700 transition cursor-pointer flex items-center space-x-1"
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white rounded-lg text-xs font-medium border border-slate-300 dark:border-slate-700 transition cursor-pointer flex items-center space-x-1"
                       title="Edit deadline details directly in card"
                     >
-                      <Edit2 className="w-3 h-3 text-slate-400" />
+                      <Edit2 className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                       <span>Edit</span>
                     </button>
                     <button
@@ -320,23 +322,23 @@ export const DeadlinesView: React.FC<DeadlinesViewProps> = ({ onOpenQuickCreate 
                         currentPriority: dl.priority,
                         currentReminders: dl.reminderTriggers,
                       })}
-                      className="px-2.5 py-1 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 rounded-lg text-xs font-medium border border-amber-500/30 transition cursor-pointer flex items-center space-x-1"
+                      className="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 rounded-lg text-xs font-medium border border-amber-300 dark:border-amber-500/30 transition cursor-pointer flex items-center space-x-1"
                       title="Adjust deadline cutoff date and time"
                     >
-                      <Calendar className="w-3 h-3 text-amber-400" />
+                      <Calendar className="w-3 h-3 text-amber-700 dark:text-amber-400" />
                       <span>Cutoff</span>
                     </button>
                     <button
                       onClick={() => markDeadlineMet(dl.id)}
-                      className="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-600 text-emerald-300 hover:text-white rounded-lg text-xs font-semibold border border-emerald-500/30 shadow-sm transition cursor-pointer flex items-center space-x-1"
-                      title="Mark deadline as met"
+                      className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium shadow-xs transition cursor-pointer flex items-center space-x-1 shrink-0"
+                      title="Mark deadline as met / delivered"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 group-hover:text-white" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                       <span>Met</span>
                     </button>
                     <button
                       onClick={() => deleteDeadline(dl.id)}
-                      className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                      className="p-1.5 text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
                       title="Delete deadline"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

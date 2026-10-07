@@ -45,24 +45,24 @@ export const TeamScopeBar: React.FC<TeamScopeBarProps> = ({ onOpenFamilyModal })
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center space-x-1.5 sm:space-x-2 flex-wrap gap-y-0.5">
-              <span className="font-bold text-white text-xs sm:text-sm truncate">
+              <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm truncate">
                 {currentUser.fullName}
               </span>
               {isAdmin ? (
-                <span className="inline-flex items-center space-x-1 px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                  <Crown className="w-2.5 h-2.5 text-purple-400" />
+                <span className="inline-flex items-center space-x-1 px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-bold bg-purple-100 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-500/30">
+                  <Crown className="w-2.5 h-2.5 text-purple-600 dark:text-purple-400" />
                   <span>ADMIN</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center space-x-1 px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                <span className="inline-flex items-center space-x-1 px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-bold bg-indigo-100 dark:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/30">
                   <span>USER</span>
                 </span>
               )}
-              <span className="text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-md bg-pink-500/15 text-pink-300 border border-pink-500/25 font-medium">
+              <span className="text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-md bg-pink-100 dark:bg-pink-500/15 text-pink-800 dark:text-pink-300 border border-pink-300 dark:border-pink-500/25 font-medium">
                 {currentUser.relationship || 'Family Member'}
               </span>
             </div>
-            <p className="text-[10px] sm:text-[11px] text-slate-400 truncate mt-0.5 hidden sm:block">
+            <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 hidden sm:block">
               👨‍👩‍👧‍👦 {currentUser.familyName || `${currentUser.fullName}'s Family`} ({familyMembers.length} members) •{' '}
               {isAdmin ? 'System administrator & family head' : 'Family member account'}
             </p>
@@ -71,14 +71,14 @@ export const TeamScopeBar: React.FC<TeamScopeBarProps> = ({ onOpenFamilyModal })
 
         {/* Right: Data Scope Filtering (My Items vs Family Items vs Member Filter) */}
         <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end overflow-x-auto pb-0.5">
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs shrink-0">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs shrink-0">
             <button
               type="button"
               onClick={() => setTeamScope('my')}
               className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center space-x-1.5 ${
                 teamScope === 'my'
                   ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
               }`}
               title="Show only my work & personal items"
             >
@@ -92,11 +92,11 @@ export const TeamScopeBar: React.FC<TeamScopeBarProps> = ({ onOpenFamilyModal })
               className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center space-x-1.5 ${
                 teamScope === 'family' || teamScope === 'all'
                   ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
               }`}
               title="Show all family items & shared lists"
             >
-              <Users className="w-3.5 h-3.5 text-indigo-300" />
+              <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" />
               <span>Family ({familyMembers.length})</span>
             </button>
           </div>

@@ -120,11 +120,11 @@ export const SummaryModal: React.FC<SummaryModalProps> = ({
         <div className="p-5 max-h-[65vh] overflow-y-auto space-y-4">
           {activeDigest === 'morning' ? (
             <>
-              <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-indigo-500/10 p-4 rounded-xl border border-amber-500/20">
-                <h4 className="font-bold text-white text-sm flex items-center gap-1.5">
+              <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-indigo-50 dark:from-amber-500/10 dark:via-orange-500/10 dark:to-indigo-500/10 p-4 rounded-xl border border-amber-200 dark:border-amber-500/20 shadow-xs">
+                <h4 className="font-bold text-amber-950 dark:text-white text-sm flex items-center gap-1.5">
                   <span>Good Morning 👋</span>
                 </h4>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                <p className="text-xs text-amber-900/80 dark:text-slate-300 mt-1 leading-relaxed">
                   Here is your orchestrated game-plan for today. Target overdue and critical deadlines first before routines!
                 </p>
               </div>
@@ -223,12 +223,12 @@ export const SummaryModal: React.FC<SummaryModalProps> = ({
           ) : (
             <>
               {/* Evening Digest */}
-              <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 p-4 rounded-xl border border-indigo-500/30">
-                <h4 className="font-bold text-white text-sm flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:to-purple-900/30 p-4 rounded-xl border border-indigo-200 dark:border-indigo-500/30 shadow-xs">
+                <h4 className="font-bold text-indigo-950 dark:text-white text-sm flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Daily Accomplishments & Status</span>
                 </h4>
-                <p className="text-xs text-slate-300 mt-1">
+                <p className="text-xs text-indigo-900/80 dark:text-slate-300 mt-1">
                   You accomplished significant progress today. Take a moment to review pending tasks before turning in!
                 </p>
               </div>

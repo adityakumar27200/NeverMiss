@@ -117,22 +117,22 @@ export const SettingsView: React.FC = () => {
             onClick={() => updateSettings({ theme: 'dark' })}
             className={`p-4 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
               (settings.theme || 'dark') === 'dark'
-                ? 'bg-slate-800/90 border-indigo-500 shadow-md ring-2 ring-indigo-500/30'
-                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                ? 'bg-indigo-50/60 dark:bg-slate-800/90 border-indigo-500 shadow-md ring-2 ring-indigo-500/30'
+                : 'bg-white dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
             }`}
           >
             <div className="flex items-center justify-between w-full mb-3">
               <div className="flex items-center space-x-2.5">
-                <div className="p-2 bg-slate-900 rounded-lg text-indigo-400 border border-slate-700">
+                <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700">
                   <Moon className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-white">Dark Theme</h4>
-                  <span className="text-[11px] text-slate-400">Deep slate tones, high contrast</span>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">Dark Theme</h4>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">Deep slate tones, high contrast</span>
                 </div>
               </div>
               {(settings.theme || 'dark') === 'dark' && (
-                <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-full text-[10px] font-bold">
+                <span className="px-2.5 py-0.5 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/40 rounded-full text-[10px] font-bold">
                   Active
                 </span>
               )}
@@ -150,30 +150,30 @@ export const SettingsView: React.FC = () => {
             onClick={() => updateSettings({ theme: 'light' })}
             className={`p-4 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
               settings.theme === 'light'
-                ? 'bg-slate-800/90 border-indigo-500 shadow-md ring-2 ring-indigo-500/30'
-                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                ? 'bg-indigo-50/60 dark:bg-slate-800/90 border-indigo-500 shadow-md ring-2 ring-indigo-500/30'
+                : 'bg-white dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
             }`}
           >
             <div className="flex items-center justify-between w-full mb-3">
               <div className="flex items-center space-x-2.5">
-                <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 border border-amber-500/30">
+                <div className="p-2 bg-amber-50 dark:bg-amber-500/10 rounded-lg text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">
                   <Sun className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-white">Light Theme</h4>
-                  <span className="text-[11px] text-slate-400">Crisp white & clean daylight palette</span>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">Light Theme</h4>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">Crisp white & clean daylight palette</span>
                 </div>
               </div>
               {settings.theme === 'light' && (
-                <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-full text-[10px] font-bold">
+                <span className="px-2.5 py-0.5 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/40 rounded-full text-[10px] font-bold">
                   Active
                 </span>
               )}
             </div>
-            <div className="w-full h-8 bg-white border border-slate-300 rounded-lg flex items-center px-3 space-x-2">
+            <div className="w-full h-8 bg-slate-100 border border-slate-300 rounded-lg flex items-center px-3 space-x-2">
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-600" />
-              <span className="w-12 h-2 rounded bg-slate-200" />
-              <span className="w-8 h-2 rounded bg-slate-200" />
+              <span className="w-12 h-2 rounded bg-slate-300" />
+              <span className="w-8 h-2 rounded bg-slate-300" />
             </div>
           </button>
         </div>
@@ -250,42 +250,42 @@ export const SettingsView: React.FC = () => {
       )}
 
       {/* Time-Travel Testing Simulator */}
-      <div className="bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-slate-900 border border-indigo-500/30 rounded-2xl p-5 shadow-sm space-y-3">
-        <div className="flex items-center space-x-2 text-indigo-400">
+      <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-white dark:from-indigo-950/40 dark:via-purple-950/30 dark:to-slate-900 border border-indigo-200 dark:border-indigo-500/30 rounded-2xl p-5 shadow-sm space-y-3">
+        <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400">
           <FastForward className="w-5 h-5" />
-          <h2 className="font-bold text-base text-white">Time-Travel Simulator (QA & Testing Tool)</h2>
+          <h2 className="font-bold text-base text-slate-900 dark:text-white">Time-Travel Simulator (QA & Testing Tool)</h2>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed">
+        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
           Simulate future dates and times to test overdue alerts, routine triggers, and deadline countdowns without waiting for real-world time to elapse.
         </p>
 
         <div className="flex items-center flex-wrap gap-2 pt-2">
-          <span className="text-xs text-slate-400 font-mono">
-            Simulated Clock: <span className="text-cyan-400 font-bold">{effectiveNow.toLocaleString()}</span>
+          <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">
+            Simulated Clock: <span className="text-indigo-700 dark:text-cyan-400 font-bold">{effectiveNow.toLocaleString()}</span>
           </span>
 
           <div className="flex items-center space-x-1.5 ml-auto">
             <button
               onClick={() => setTimeOffset(0)}
-              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 cursor-pointer"
+              className="px-2.5 py-1 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-700 cursor-pointer transition"
             >
               Reset to Real Time
             </button>
             <button
               onClick={() => setTimeOffset((settings.timeOffsetMinutes || 0) + 60)}
-              className="px-2.5 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-xs font-semibold border border-indigo-500/40 cursor-pointer"
+              className="px-2.5 py-1 bg-indigo-100 hover:bg-indigo-600 dark:bg-indigo-600/30 dark:hover:bg-indigo-600 text-indigo-800 hover:text-white dark:text-indigo-300 dark:hover:text-white rounded-lg text-xs font-semibold border border-indigo-300 dark:border-indigo-500/40 cursor-pointer transition"
             >
               +1 Hour
             </button>
             <button
               onClick={() => setTimeOffset((settings.timeOffsetMinutes || 0) + 1440)}
-              className="px-2.5 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-xs font-semibold border border-indigo-500/40 cursor-pointer"
+              className="px-2.5 py-1 bg-indigo-100 hover:bg-indigo-600 dark:bg-indigo-600/30 dark:hover:bg-indigo-600 text-indigo-800 hover:text-white dark:text-indigo-300 dark:hover:text-white rounded-lg text-xs font-semibold border border-indigo-300 dark:border-indigo-500/40 cursor-pointer transition"
             >
               +1 Day
             </button>
             <button
               onClick={() => setTimeOffset((settings.timeOffsetMinutes || 0) + 4320)}
-              className="px-2.5 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-xs font-semibold border border-indigo-500/40 cursor-pointer"
+              className="px-2.5 py-1 bg-indigo-100 hover:bg-indigo-600 dark:bg-indigo-600/30 dark:hover:bg-indigo-600 text-indigo-800 hover:text-white dark:text-indigo-300 dark:hover:text-white rounded-lg text-xs font-semibold border border-indigo-300 dark:border-indigo-500/40 cursor-pointer transition"
             >
               +3 Days
             </button>

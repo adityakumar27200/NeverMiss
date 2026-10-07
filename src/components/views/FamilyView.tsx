@@ -136,18 +136,18 @@ export const FamilyView: React.FC = () => {
   return (
     <div className="space-y-6 pb-12">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-purple-950 border border-indigo-900/40 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 dark:from-indigo-950 dark:via-slate-900 dark:to-purple-950 border border-indigo-200 dark:border-indigo-900/40 rounded-3xl p-6 sm:p-8 shadow-sm dark:shadow-xl relative overflow-hidden">
         <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                <Heart className="w-3.5 h-3.5 text-pink-400 fill-pink-400/30" />
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 dark:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/30">
+                <Heart className="w-3.5 h-3.5 text-pink-600 dark:text-pink-400 fill-pink-500/30" />
                 <span>Family & Household Workspace</span>
               </span>
               {isAdmin && (
-                <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                  <Crown className="w-3 h-3 text-purple-400" />
+                <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-500/30">
+                  <Crown className="w-3 h-3 text-purple-600 dark:text-purple-400" />
                   <span>Admin Authority</span>
                 </span>
               )}
@@ -160,7 +160,7 @@ export const FamilyView: React.FC = () => {
                     type="text"
                     value={newFamilyName}
                     onChange={e => setNewFamilyName(e.target.value)}
-                    className="bg-slate-800 border border-indigo-500 text-white font-bold text-xl sm:text-2xl rounded-xl px-3 py-1 focus:outline-none"
+                    className="bg-white dark:bg-slate-800 border border-indigo-500 text-slate-900 dark:text-white font-bold text-xl sm:text-2xl rounded-xl px-3 py-1 focus:outline-none"
                     autoFocus
                   />
                   <button
@@ -172,14 +172,14 @@ export const FamilyView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsEditingFamilyName(false)}
-                    className="px-3 py-1.5 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700 cursor-pointer"
+                    className="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs rounded-lg hover:bg-slate-300 dark:hover:bg-slate-700 cursor-pointer"
                   >
                     Cancel
                   </button>
                 </form>
               ) : (
                 <div className="flex items-center space-x-2.5">
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                     {currentUser.familyName || `${currentUser.fullName}'s Family`}
                   </h1>
                   <button
@@ -187,7 +187,7 @@ export const FamilyView: React.FC = () => {
                       setNewFamilyName(currentUser.familyName || `${currentUser.fullName}'s Family`);
                       setIsEditingFamilyName(true);
                     }}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
+                    className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition"
                     title="Edit Family Name"
                   >
                     <Edit2 className="w-4 h-4" />
@@ -196,7 +196,7 @@ export const FamilyView: React.FC = () => {
               )}
             </div>
 
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               Manage family members, create login credentials, and coordinate shared tasks, deadlines, routines, and grocery lists.
             </p>
           </div>

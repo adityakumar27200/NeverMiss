@@ -116,11 +116,11 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onOpenMobileNav}
-              className="lg:hidden p-2 -ml-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition cursor-pointer"
+              className="lg:hidden p-2 -ml-1 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
               title="Open Navigation Menu"
               aria-label="Open Navigation Menu"
             >
-              <Menu className="w-5 h-5 text-indigo-400" />
+              <Menu className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             </button>
           )}
 
@@ -130,23 +130,23 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm sm:text-base tracking-tight text-white">NeverMiss</span>
+                <span className="font-bold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white">NeverMiss</span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
                 Never forget a task, deadline or routine
               </p>
             </div>
           </div>
 
-          <div className="hidden lg:flex items-center space-x-2 px-3 py-1 bg-slate-800/80 rounded-lg border border-slate-700/60 text-xs text-slate-300">
-            <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="font-medium text-slate-200">{dateDisplay}</span>
-            <span className="text-slate-500">•</span>
-            <span className="font-mono text-cyan-400 font-semibold">{timeDisplay}</span>
+          <div className="hidden lg:flex items-center space-x-2 px-3 py-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-300">
+            <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            <span className="font-medium text-slate-800 dark:text-slate-200">{dateDisplay}</span>
+            <span className="text-slate-400 dark:text-slate-500">•</span>
+            <span className="font-mono text-cyan-600 dark:text-cyan-400 font-semibold">{timeDisplay}</span>
             {settings.timeOffsetMinutes !== 0 && (
               <button
                 onClick={onNavigateToSettings}
-                className="ml-1 bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/30 font-medium hover:bg-amber-500/30"
+                className="ml-1 bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-300 dark:border-amber-500/30 font-medium hover:bg-amber-200 dark:hover:bg-amber-500/30"
                 title="Simulated Time Active. Click to adjust in Settings."
               >
                 Simulated ({settings.timeOffsetMinutes > 0 ? `+${settings.timeOffsetMinutes}m` : `${settings.timeOffsetMinutes}m`})
@@ -158,13 +158,13 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Center: Search trigger */}
         <button
           onClick={onOpenSearch}
-          className="flex-1 max-w-md hidden md:flex items-center justify-between px-3.5 py-1.5 bg-slate-800/90 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-lg border border-slate-700/70 text-xs transition group cursor-pointer"
+          className="flex-1 max-w-md hidden md:flex items-center justify-between px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded-lg border border-slate-300 dark:border-slate-700/70 text-xs transition group cursor-pointer"
         >
           <div className="flex items-center space-x-2">
-            <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-400 transition" />
+            <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition" />
             <span>Search tasks, deadlines, routines, contacts...</span>
           </div>
-          <kbd className="px-1.5 py-0.5 bg-slate-700 text-slate-300 text-[10px] rounded border border-slate-600 font-mono">
+          <kbd className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded border border-slate-300 dark:border-slate-600 font-mono">
             Ctrl+K
           </kbd>
         </button>
@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Mobile search */}
           <button
             onClick={onOpenSearch}
-            className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition"
+            className="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
             title="Search"
             aria-label="Search"
           >
@@ -184,10 +184,10 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Daily Summary Modal Trigger (desktop/tablet) */}
           <button
             onClick={onOpenSummary}
-            className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-500/15 to-orange-500/15 hover:from-amber-500/25 hover:to-orange-500/25 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium transition cursor-pointer"
+            className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-500/15 dark:to-orange-500/15 hover:from-amber-200 hover:to-orange-200 dark:hover:from-amber-500/25 dark:hover:to-orange-500/25 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30 rounded-lg text-xs font-medium transition cursor-pointer"
             title="Daily Summary Digest"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span className="hidden md:inline">Daily Digest</span>
           </button>
 
@@ -196,8 +196,8 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={toggleSound}
             className={`hidden sm:inline-flex p-2 rounded-lg border text-xs transition cursor-pointer ${
               settings.soundEnabled
-                ? 'bg-slate-800 text-indigo-400 border-slate-700 hover:bg-slate-700'
-                : 'bg-slate-800 text-slate-500 border-slate-700/50 hover:text-slate-300'
+                ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-slate-700 hover:bg-indigo-100 dark:hover:bg-slate-700'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-300 dark:border-slate-700/50 hover:text-slate-700 dark:hover:text-slate-300'
             }`}
             title={settings.soundEnabled ? 'Sound Alerts On' : 'Sound Alerts Muted'}
           >
@@ -207,14 +207,14 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Theme Mode Toggle (Dark / Light) */}
           <button
             onClick={() => updateSettings({ theme: settings.theme === 'light' ? 'dark' : 'light' })}
-            className="p-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/70 transition cursor-pointer"
+            className="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg border border-slate-300 dark:border-slate-700/70 transition cursor-pointer"
             title={settings.theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
             aria-label="Toggle Theme Mode"
           >
             {settings.theme === 'light' ? (
-              <Moon className="w-4 h-4 text-indigo-400" />
+              <Moon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             ) : (
-              <Sun className="w-4 h-4 text-amber-400" />
+              <Sun className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             )}
           </button>
 
@@ -222,7 +222,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="relative" ref={notifRef}>
             <button
               onClick={() => setShowNotifPopover(!showNotifPopover)}
-              className="p-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/70 transition relative cursor-pointer"
+              className="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg border border-slate-300 dark:border-slate-700/70 transition relative cursor-pointer"
               title="Notifications"
               aria-label="Notifications"
             >
